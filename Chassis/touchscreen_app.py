@@ -1,10 +1,13 @@
 import sys, pygame
 pygame.init()
 
-size = width, height = 500, 500
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
+size = width, height = 500, 300
+red = (255, 60, 60)
+red_light = (255, 125, 125)
+green = (60, 255, 60)
+green_light = (125, 255, 125)
+blue = (60, 60, 255)
+blue_light = (125, 125, 255)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
@@ -58,9 +61,14 @@ while 1:
 
     screen.fill(white)
 
-    b1_enabled = button("button1", 100, 400, 80, 50, red, black, b1_enabled, action=handle_click1)
-    b2_enabled = button("button2", 200, 400, 80, 50, green, black, b2_enabled, action=handle_click2)
-    b3_enabled = button("button3", 300, 400, 80, 50, blue, black, b3_enabled, action=handle_click3)
+    smallText = pygame.font.SysFont("comicsansms",20)
+    textSurf, textRect = text_objects("Choose your item", smallText)
+    textRect.center = (width/2, height/2-70) 
+    screen.blit(textSurf, textRect)
+
+    b1_enabled = button("Item 1", 110, 180, 80, 50, red, red_light, b1_enabled, action=handle_click1)
+    b2_enabled = button("Item 2", 210, 180, 80, 50, green, green_light, b2_enabled, action=handle_click2)
+    b3_enabled = button("Item 3", 310, 180, 80, 50, blue, blue_light, b3_enabled, action=handle_click3)
 
     # pygame.draw.rect(screen, red, (100, 450, 80, 50))
     # pygame.draw.rect(screen, green, (200, 450, 80, 50))
