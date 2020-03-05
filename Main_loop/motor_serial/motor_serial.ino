@@ -1,11 +1,10 @@
-#include <Wire.h> //Needed for I2C to GPS
-#include "SparkFunLSM6DS3.h"
-#include "SparkFun_Ublox_Arduino_Library.h" //http://librarymanager/All#SparkFun_Ublox_GPS
-LSM6DS3 myIMU; //Default constructor is I2C, addr 0x6B
-SFE_UBLOX_GPS myGPS;
-
-#define BAUD_RATE 9600
+#define MOTOR_ENABLE 12
+#define MOTOR1 10
+#define MOTOR2 9
 #define LED_PIN 13
+#define BAUD_RATE 9600
+
+int motor_speed = 100;
 
 const byte numChars = 32;
 char receivedChars[numChars];
@@ -14,29 +13,21 @@ char receivedMsg[numChars] = {0};
 String command = "";
 boolean newData = false;
 
-void setup()
-{
+
+void setup() {
+    // put your setup code here, to run once:
     pinMode(LED_PIN, OUTPUT);
-
-    Wire.begin();
-    if (myGPS.begin() == false) //Connect to the Ublox module using Wire port
-    {
-    Serial.println(F("Ublox GPS not detected at default I2C address. Please check wiring. Freezing."));
-    while (1);
-    }
-
-    myGPS.setI2COutput(COM_TYPE_UBX); //Set the I2C port to output UBX only (turn off NMEA noise)
-    myGPS.saveConfiguration(); //Save the current settings to flash and BBR
-    //Call .begin() to configure the IMU
-    myIMU.begin();
-
+    pinMode(MOTOR_ENABLE, OUTPUT); // enable pin, speed control
+    pinMode(MOTOR1, OUTPUT);  // ch1 input
+    pinMode(MOTOR2, OUTPUT);  // ch2 input
+    digitalWrite(MOTOR_ENABLE, HIGH);
+    brake();
     Serial.begin(BAUD_RATE);
-    while (!Serial) {}; //Wait for user to open terminal
+    while (!Serial) {}; // hangs until serial port is properly opened
 
     digitalWrite(LED_PIN, HIGH);
     while (! establish_connection()) {}
     digitalWrite(LED_PIN, LOW);
-  
 }
 
 void loop()
@@ -49,48 +40,40 @@ void loop()
         parseData();
         command = String(receivedMsg);
         newData = false;
-        if (command == "GPS") {
-          returnGPS();
-        } 
-        else if (command == "ACC") {
-          returnACC();
-        }
+    }
+
+    if (command == "forward") 
+    {
+        go_forward(motor_speed);
+    }
+    else if (command == "backward") 
+    {
+        go_backward(motor_speed);
+    }
+    else
+    {
+        brake();
     }
 }
 
-void returnGPS()
-{
-    String s = "GPS:";
-    long latitude = myGPS.getLatitude();
-    s += String(latitude);
-    s += ",";
-    long longitude = myGPS.getLongitude();
-    s += String(longitude);
-    s += ",";
-    long altitude = myGPS.getAltitude();
-    s += String(altitude);
-    s += ",";
-    int SIV = myGPS.getSIV();
-    s += String(SIV);
-    Serial.println(s);
+void go_forward(int SPEED){
+    analogWrite(MOTOR1, SPEED);
+    digitalWrite(MOTOR2, LOW);
 }
-
-void returnACC()
-{
-    String s = "ACC:";
-    s += String(myIMU.readFloatAccelX());
-    s += ",";
-    s += myIMU.readFloatAccelY();
-    s += ",";
-    s += myIMU.readFloatAccelZ();
-    Serial.println(s);
+void go_backward(int SPEED){
+    digitalWrite(MOTOR1, LOW);
+    analogWrite(MOTOR2, SPEED);
+}
+void brake(){
+    digitalWrite(MOTOR1, LOW);
+    digitalWrite(MOTOR2, LOW);
 }
 
 boolean establish_connection(){
     while (!(Serial.available() > 0)) {} // hangs until a msg is received
     char rcv = Serial.read();
     if (rcv == 'i') {
-        Serial.println("sensors");
+        Serial.println("motor");
     }
 
     int start = millis();
@@ -146,4 +129,7 @@ void parseData() {      // split the data into its parts
 
     strtokIndx = strtok(tempChars,",");      // get the first part - the string
     strcpy(receivedMsg, strtokIndx); // copy it to messageFromPC
+ 
+    strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
+    motor_speed = atoi(strtokIndx);     // convert this part to an integer
 }
