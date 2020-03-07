@@ -98,12 +98,16 @@ def take_command(ports, timeout=1):
 				print(line)
 				break
 
-	elif cmd == "stepper_f10":
-		#ports["stepper"].write(b'f10')
+	elif cmd == "stepper_forward":
+		ports["stepper"].write("<forward,{}>".format(arg).encode('utf-8'))
 		print("Stepper forward")
-	elif cmd == "stepper_b10":
-		#ports["stepper"].write(b'b10')
+	elif cmd == "stepper_backward":
+		ports["stepper"].write("<backward,{}>".format(arg).encode('utf-8'))
 		print("Stepper backward")
+	elif cmd == "stepper_brake":
+		ports["stepper"].write("<brake,{}>".format(arg).encode('utf-8'))
+		print("Stepper backward")
+
 	elif cmd == "done":
 		finished = True
 	else:
