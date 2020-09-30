@@ -14,3 +14,5 @@ BruinBot's face is a 16x16 WS2812 NeoPixel Matrix, run via an Arduino module on 
 Frame-by-frame animations are now coded for the LED Matrix face, which can be seen with the demo Arduino code in the Face folder. The BruinBot Face Library contains the classes Face and LEDMatrix. 
 
 The emotions are public functions of the Face class, which can be called from an external program once system integration is underway. For now, the demo shows a sequence of the emotions on a loop. 
+
+Face_Accessory_Files contains the arduino demo, as well as an Excel spreadsheet which was used to turn drawings of the frames into output code. 
