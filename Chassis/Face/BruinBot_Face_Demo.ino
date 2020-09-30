@@ -7,41 +7,40 @@
 Face myFace(8); 
 
 void setup() {
-  // put your setup code here, to run once:
+ 
   //Set up hardware
   pinMode(WS2812_pin, OUTPUT);
 
   //create a new Face object on pin 8 
-  Face myFace(8); 
+  Face myFace(WS2812_pin); 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
- 
-  /*
-  for (int i =0; i<3; i++){
-     myFace.bounce(150); 
-  }
-  */
+ // Animation Demo
   
-  //myFace.loading(); 
-  //myFace.loading(); 
-  //myFace.loading(); 
-
- // myFace.startup(); 
+ //Loading screen 
+  myFace.loading(); 
+  myFace.loading(); 
+  myFace.loading();
+ //Startup and go to happy standby 
+  myFace.startup(); 
   myFace.happy_standby(); 
+  myFace.happy_standby(); 
+ //Surprise
   myFace.surprise(); 
   myFace.surprise_reverse(); 
-    myFace.happy_standby(); 
-  
-  //myFace.happy_emphasis(1500);
- // myFace.happy_standby(); 
-  //myFace.angry_transition(); 
-  //myFace.angry_standby();
- // myFace.angry_standby();
-  //myFace.angry_transition_reverse();
-  //myFace.happy_standby(); 
-  //myFace.bounce(150);
-  //myFace.bounce(150);
+ //Happy emphasis
+  myFace.happy_standby();
+  myFace.happy_emphasis(1500);
+  myFace.happy_standby(); 
+ //Angry
+  myFace.angry_transition(); 
+  myFace.angry_standby();
+  myFace.angry_standby();
+  myFace.angry_transition_reverse();
+  myFace.happy_standby(); 
+ //bounce 
+  myFace.bounce(150);
+  myFace.bounce(150);
 
 }
