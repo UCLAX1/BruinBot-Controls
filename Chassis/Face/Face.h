@@ -20,15 +20,20 @@ class Face
 public:
     Face(int pin);
     void happy_standby();
-    void bounce(int speed);
+    void neutral_standby();
+    void bored_standby(); 
     void happy_emphasis(int hold); 
+    void surprise();
+    void surprise_reverse();
     void angry_transition(); 
     void angry_transition_reverse(); 
     void angry_standby();
+    void sad_standby();
+    void sad_transition();
+    void sad_transition_reverse(); 
     void loading(); 
     void startup(); 
-    void surprise(); 
-    void surprise_reverse(); 
+    void bounce(int speed);
     void testline(); 
 
     //the eye and mouth color could potentially be changed outside the face object
@@ -41,19 +46,32 @@ private:
     //Animation Snippets
     void blink();
     void angry_blink();
+    void sad_blink(); 
+    void netural_blink(); 
+    void bored_blink(); 
 
     //Single Frames
-    void happy_frame1(int h);
-    void blink_frame1(); 
-        void happy_em_frame1();
-        void happy_em_frame2();
-        void happy_em_frame3();
-    void angry_frame1();
-    void angry_frame2();
-    void angry_frame3();
-    void angry_frame4();
-    void angry_frame5();
-    void angry_blink_frame1();
+        void happy_frame1(int h);
+        void blink_frame1(); 
+        void neutral_frame1(); 
+        void bored_frame1();
+    void happy_em_frame1();
+    void happy_em_frame2();
+    void happy_em_frame3();
+        void angry_frame1();
+        void angry_frame2();
+        void angry_frame3();
+        void angry_frame4();
+        void angry_frame5();
+        void angry_blink_frame1();
+        void sad_frame1();
+        void sad_frame2();
+        void sad_frame3();
+        void sad_frame4();
+        void sad_frame5();
+        void sad_frame6();
+    void sad_blink_frame1();
+    void sad_blink_frame2();
          void loading_frame1(); 
          void loading_frame2();
          void loading_frame3();
@@ -89,12 +107,15 @@ private:
     //Frame Elements
     void basic_smile(int h);
     void basic_eyes(int h); 
+    void neutral_mouth();
     void happy_em_eyes();
     void angry_eyes();
     void angry_mouth();
+    void sad_mouth();
     void angry_eyebrows(); 
     void surprised_eyes();
     void surprised_mouth(); 
+    void neutral_mouth(); 
 
     //default eye colors: rgb 0,0,100 (blue) 
     byte eyeColor[3] = { 0,0,100 };

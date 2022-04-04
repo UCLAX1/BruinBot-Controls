@@ -30,39 +30,22 @@ void Face::happy_standby() {
 
 }
 
-void Face::bounce(int speed) {
-  //the "bounce" code is used as a loading screen or maybe some other functions.
-  // moves the entire face up and down to bounce off the top or bottom of the frame. 
-  // the counter "h" indicates the height of the face below the neutral 0 position. Min is -9 (top) max is 2(bottom)
-  // speed is the delay in milliseconds between frames. 
+void Face::neutral_standby() {
+    //neutral is a single frame that doesn't require any transition, it only has a different mouth than the happy emotion. 
+    neutral_frame1(); 
+    m_Matrix.displayFrame(2000); //display for 2 seconds
+    neutral_blink();
+    neutral_frame1();
+    m_Matrix.displayFrame(2000); //display for 2 seconds
+}
 
-  // "bounce" the face up towards the top 
-    for (int h = 0; h > -9; h--) {
-        happy_frame1(h); 
-        m_Matrix.displayFrame(speed);
-    }
-
-    //display top "squished" frame where mouth travels one space upwards relative to the eyes
-    basic_eyes(-9);
-    basic_smile(-10);
-    m_Matrix.displayFrame(speed);
-
-    //bounce the face back down 
-    for (int h = -9; h < 2; h++) {
-        happy_frame1(h);
-        m_Matrix.displayFrame(speed);
-    }
-
-    //display bottom "squished" frame 
-    basic_eyes(3);
-    basic_smile(2); 
-    m_Matrix.displayFrame(speed);
-
-    //bounce back to center position 
-    for (int h = 2; h > 0; h--) {
-        happy_frame1(h);
-        m_Matrix.displayFrame(speed);
-    }
+void Face::bored_standby() {
+    //frame 1
+    bored_frame_1();
+    m_Matrix.displayFrame(2000);
+    bored_blink();
+    bored_frame_1();
+    m_Matrix.displayFrame(2000);
 }
 
 void Face::happy_emphasis(int hold) {
@@ -90,6 +73,34 @@ void Face::happy_emphasis(int hold) {
     blink();
 }
 
+void Face::surprise() {
+    set_eyebrowColor(0, 0, 5);
+    int speed = 75;
+    surprise_frame1();
+    m_Matrix.displayFrame(speed);
+    surprise_frame2();
+    m_Matrix.displayFrame(speed);
+    surprise_frame3();
+    m_Matrix.displayFrame(speed);
+    surprise_frame4();
+    m_Matrix.displayFrame(speed);
+    surprise_frame5();
+    m_Matrix.displayFrame(2000); //hold for 2 seconds
+}
+
+void Face::surprise_reverse() {
+    set_eyebrowColor(0, 0, 5);
+    int speed = 100;
+    surprise_reverse_frame1();
+    m_Matrix.displayFrame(speed);
+    surprise_reverse_frame2();
+    m_Matrix.displayFrame(speed);
+    surprise_reverse_frame3();
+    m_Matrix.displayFrame(speed);
+    surprise_reverse_frame4();
+    m_Matrix.displayFrame(speed);
+}
+
 void Face::angry_transition() {
     set_eyebrowColor(10, 0, 0);
     //transition through blink
@@ -100,18 +111,18 @@ void Face::angry_transition() {
     angry_frame1(); //eyes half open, mouth changes position
     m_Matrix.displayFrame(100);
 
-set_eyeColor(30, 0, 75);
-angry_frame2();
-m_Matrix.displayFrame(100);
-set_eyeColor(60, 0, 50);
-angry_frame3(); //start to add eyebrows
-m_Matrix.displayFrame(100);
-set_eyeColor(90, 0, 25);
-angry_frame4();
-m_Matrix.displayFrame(100);
-set_eyeColor(120, 0, 0);
-angry_frame5(); //finish eyebrows
-m_Matrix.displayFrame(100);
+    set_eyeColor(30, 0, 75);
+    angry_frame2();
+    m_Matrix.displayFrame(100);
+    set_eyeColor(60, 0, 50);
+    angry_frame3(); //start to add eyebrows
+    m_Matrix.displayFrame(100);
+    set_eyeColor(90, 0, 25);
+    angry_frame4();
+    m_Matrix.displayFrame(100);
+    set_eyeColor(120, 0, 0);
+    angry_frame5(); //finish eyebrows
+    m_Matrix.displayFrame(100);
 }
 
 void Face::angry_standby() {
@@ -139,6 +150,47 @@ void Face::angry_transition_reverse() {
     m_Matrix.displayFrame(speed);
     set_eyeColor(0, 0, 100);
 
+}
+
+void Face::sad_transition() {
+    set_eyebrowColor(0, 0, 5);
+    //transition through blink
+    sad_frame1();
+    m_Matrix.displayFrame(100);
+    sad_frame2();
+    m_Matrix.displayFrame(100);
+    sad_frame3(); 
+    m_Matrix.displayFrame(100);
+    sad_frame4();
+    m_Matrix.displayFrame(100);
+    sad_frame5();
+    m_Matrix.displayFrame(100);
+    sad_frame6();
+    m_Matrix.displayFrame(100);
+}
+void sad_standby() {
+    // hold, end by blinking
+    sad_frame6();
+    m_Matrix.displayFrame(2000); //display for 2 seconds
+    sad_blink();
+    sad_frame6();
+    m_Matrix.displayFrame(2000); //display for 2 seconds
+}
+
+void Face::sad_transition_reverse() {
+    set_eyebrowColor(0, 0, 5);
+    sad_frame6();
+    m_Matrix.displayFrame(100);
+    sad_frame5();
+    m_Matrix.displayFrame(100);
+    sad_frame4();
+    m_Matrix.displayFrame(100);
+    sad_frame3();
+    m_Matrix.displayFrame(100);
+    sad_frame2();
+    m_Matrix.displayFrame(100);
+    sad_frame1();
+    m_Matrix.displayFrame(100);
 }
 
 void Face::loading() {
@@ -201,34 +253,40 @@ void Face::startup() {
     blink(); 
 }
 
-void Face::surprise() {
-    set_eyebrowColor(0, 0, 5);
-    int speed = 75;
-    surprise_frame1();
-    m_Matrix.displayFrame(speed);
-    surprise_frame2();
-    m_Matrix.displayFrame(speed);
-    surprise_frame3();
-    m_Matrix.displayFrame(speed);
-    surprise_frame4();
-    m_Matrix.displayFrame(speed);
-    surprise_frame5();
-    m_Matrix.displayFrame(2000); //hold for 2 seconds
-}
+void Face::bounce(int speed) {
+    //the "bounce" code is used as a loading screen or maybe some other functions.
+    // moves the entire face up and down to bounce off the top or bottom of the frame. 
+    // the counter "h" indicates the height of the face below the neutral 0 position. Min is -9 (top) max is 2(bottom)
+    // speed is the delay in milliseconds between frames. 
 
-void Face::surprise_reverse() {
-    set_eyebrowColor(0, 0, 5);
-    int speed = 100;
-    surprise_reverse_frame1();
-    m_Matrix.displayFrame(speed);
-    surprise_reverse_frame2();
-    m_Matrix.displayFrame(speed);
-    surprise_reverse_frame3();
-    m_Matrix.displayFrame(speed);
-    surprise_reverse_frame4();
-    m_Matrix.displayFrame(speed);
-}
+    // "bounce" the face up towards the top 
+    for (int h = 0; h > -9; h--) {
+        happy_frame1(h);
+        m_Matrix.displayFrame(speed);
+    }
 
+    //display top "squished" frame where mouth travels one space upwards relative to the eyes
+    basic_eyes(-9);
+    basic_smile(-10);
+    m_Matrix.displayFrame(speed);
+
+    //bounce the face back down 
+    for (int h = -9; h < 2; h++) {
+        happy_frame1(h);
+        m_Matrix.displayFrame(speed);
+    }
+
+    //display bottom "squished" frame 
+    basic_eyes(3);
+    basic_smile(2);
+    m_Matrix.displayFrame(speed);
+
+    //bounce back to center position 
+    for (int h = 2; h > 0; h--) {
+        happy_frame1(h);
+        m_Matrix.displayFrame(speed);
+    }
+}
 
 void Face::testline() {
     for (int x = 0; x < 16; x++){
@@ -284,6 +342,28 @@ void Face::blink() {
     m_Matrix.displayFrame(100);
 }
 
+void Face::neutral_blink() {
+    //frame 1
+    m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
+    neutral_mouth(); 
+    m_Matrix.displayFrame(100);
+
+    //frame 2
+    neutral_mouth();
+    m_Matrix.displayFrame(100);
+
+    //frame 3
+    m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
+    neutral_mouth();
+    m_Matrix.displayFrame(100);
+}
+
+void bored_blink() {
+    //frame with no eyes
+    neutral_mouth();
+    m_Matrix.displayFrame(100);
+}
+
 void Face::angry_blink() {
 
     angry_blink_frame1();
@@ -297,6 +377,16 @@ void Face::angry_blink() {
     m_Matrix.displayFrame(100);
 }
 
+void Face::sad_blink() {
+    // play 2 frames forward and reverse
+    sad_blink_frame1();
+    m_Matrix.displayFrame(100);
+    angry_blink_frame2();
+    m_Matrix.displayFrame(100);
+    sad_blink_frame1();
+    m_Matrix.displayFrame(100);
+}
+
 //***********  Single Frames  ************* //
 
 void Face::happy_frame1(int h) {
@@ -304,6 +394,15 @@ void Face::happy_frame1(int h) {
     //h should be zero for the default position. 
     basic_eyes(h);
     basic_smile(h); 
+}
+
+void Face::neutral_frame1() { 
+    basic_eyes(0);
+    neutral_mouth();
+}
+void bored_frame_1() {
+    m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
+    neutral_mouth();
 }
 
 void Face::blink_frame1() {
@@ -365,13 +464,75 @@ void Face::angry_frame5() {
     //finish eyebrows
     angry_eyebrows();
 }
-
 void Face::angry_blink_frame1() {
     angry_mouth();
     angry_eyebrows();
     //eyes
     m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
 }
+
+/// Sad Frames 
+void sad_mouth() {
+    m_Matrix.mapLEDXY(6, 13, mouthColor); m_Matrix.mapLEDXY(7, 13, mouthColor); m_Matrix.mapLEDXY(8, 13, mouthColor);
+}
+void Face::sad_frame1() {
+    // mouth 
+    sad_mouth();
+    //eyes 
+    m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
+}
+void Face::sad_frame2() {
+    // mouth 
+    sad_mouth();
+    //eyes 
+    // in mid-blink
+}
+void Face::sad_frame3() {
+    // mouth 
+    sad_mouth();
+    //eyes 
+    m_Matrix.mapLEDXY(2, 11, eyeColor); m_Matrix.mapLEDXY(3, 11, eyeColor); m_Matrix.mapLEDXY(12, 11, eyeColor); m_Matrix.mapLEDXY(13, 11, eyeColor);
+}
+void Face::sad_frame4() {
+    // mouth 
+    sad_mouth();
+    //eyes 
+    basic_eyes(-1); 
+    // eyebrows 
+    m_Matrix.mapLEDXY(2, 8, eyebrowColor); m_Matrix.mapLEDXY(13, 8, eyebrowColor);
+}
+void Face::sad_frame5() {
+    // mouth 
+    sad_mouth();
+    //eyes
+    basic_eyes(-1);
+    // eyebrows 
+    m_Matrix.mapLEDXY(2, 8, eyebrowColor); m_Matrix.mapLEDXY(3, 7, eyebrowColor); m_Matrix.mapLEDXY(4, 7, eyebrowColor); m_Matrix.mapLEDXY(11, 7, eyebrowColor); m_Matrix.mapLEDXY(12, 7, eyebrowColor); m_Matrix.mapLEDXY(13, 8, eyebrowColor);
+}
+void Face::sad_frame6() {
+    // mouth 
+    sad_mouth();
+    //eyes
+    basic_eyes(-1);
+    // eyebrows 
+    m_Matrix.mapLEDXY(2, 8, eyebrowColor); m_Matrix.mapLEDXY(3, 7, eyebrowColor); m_Matrix.mapLEDXY(4, 7, eyebrowColor); m_Matrix.mapLEDXY(5, 6, eyebrowColor); m_Matrix.mapLEDXY(10, 6, eyebrowColor); m_Matrix.mapLEDXY(11, 7, eyebrowColor); m_Matrix.mapLEDXY(12, 7, eyebrowColor); m_Matrix.mapLEDXY(13, 8, eyebrowColor);
+}
+void Face::sad_blink_frame1() {
+    // mouth 
+    sad_mouth();
+    //eyes
+    m_Matrix.mapLEDXY(2, 11, eyeColor); m_Matrix.mapLEDXY(3, 11, eyeColor); m_Matrix.mapLEDXY(12, 11, eyeColor); m_Matrix.mapLEDXY(13, 11, eyeColor);
+    // eyebrows moved slightly down 
+    m_Matrix.mapLEDXY(2, 9, eyebrowColor); m_Matrix.mapLEDXY(3, 8, eyebrowColor); m_Matrix.mapLEDXY(4, 8, eyebrowColor); m_Matrix.mapLEDXY(5, 7, eyebrowColor); m_Matrix.mapLEDXY(10, 7, eyebrowColor); m_Matrix.mapLEDXY(11, 8, eyebrowColor); m_Matrix.mapLEDXY(12, 8, eyebrowColor); m_Matrix.mapLEDXY(13, 9, eyebrowColor);
+}
+void Face::sad_blink_frame2() {
+    // mouth 
+    sad_mouth();
+    //eyes
+    // eyebrows moved slightly down 
+    m_Matrix.mapLEDXY(2, 9, eyebrowColor); m_Matrix.mapLEDXY(3, 8, eyebrowColor); m_Matrix.mapLEDXY(4, 8, eyebrowColor); m_Matrix.mapLEDXY(5, 7, eyebrowColor); m_Matrix.mapLEDXY(10, 7, eyebrowColor); m_Matrix.mapLEDXY(11, 8, eyebrowColor); m_Matrix.mapLEDXY(12, 8, eyebrowColor); m_Matrix.mapLEDXY(13, 9, eyebrowColor);
+}
+
 
 //// Loading Screen
 void Face::loading_frame1() {
@@ -544,10 +705,14 @@ void Face::basic_smile(int h) {
 
 void Face::basic_eyes(int h) {
     //eyes
+    //  height indicates the height above default (0 is default)
     m_Matrix.mapLEDXY(2, h + 9, eyeColor); m_Matrix.mapLEDXY(2, h + 10, eyeColor); m_Matrix.mapLEDXY(3, h + 9, eyeColor); m_Matrix.mapLEDXY(3, h + 10, eyeColor);
     m_Matrix.mapLEDXY(12, h + 9, eyeColor); m_Matrix.mapLEDXY(12, h + 10, eyeColor); m_Matrix.mapLEDXY(13, h + 9, eyeColor); m_Matrix.mapLEDXY(13, h + 10, eyeColor);
 }
 
+void Face : neutral_mouth() {
+    m_Matrix.mapLEDXY(7, 13, mouthColor); m_Matrix.mapLEDXY(8, 13, mouthColor);
+}
 void Face::happy_em_eyes() {
     //eyes
      m_Matrix.mapLEDXY(1, 9, eyeColor); m_Matrix.mapLEDXY(2, 8, eyeColor); m_Matrix.mapLEDXY(3, 8, eyeColor); m_Matrix.mapLEDXY(4, 9, eyeColor); m_Matrix.mapLEDXY(11, 9, eyeColor); m_Matrix.mapLEDXY(12, 8, eyeColor); m_Matrix.mapLEDXY(13, 8, eyeColor); m_Matrix.mapLEDXY(14, 9, eyeColor);
