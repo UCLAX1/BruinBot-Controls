@@ -1,7 +1,7 @@
 #include <Face.h>
 #include <LEDMatrix.h>
  
-#define WS2812_pin 8 // only digital pin 8 works right now!
+#define WS2812_pin 8 // only digital pin 8 works right now! PLug LED panel into 3V, Gnd, and pin 8. 
 #define numberOfLEDs 256// total number of RGB LEDs
 
 Face myFace(8); 
@@ -31,13 +31,22 @@ void loop() {
   myFace.surprise_reverse(); 
  //Happy emphasis
   myFace.happy_standby();
-  myFace.happy_emphasis(1500);
+  myFace.happy_emphasis(1500); // have to put a duration for this one
   myFace.happy_standby(); 
  //Angry
   myFace.angry_transition(); 
   myFace.angry_standby();
   myFace.angry_standby();
   myFace.angry_transition_reverse();
+  myFace.happy_standby(); 
+ // Sad 
+  myFace.sad_transition(); 
+  myFace.sad_standby(); 
+  myFace.sad_standby(); 
+  myFace.sad_transition_reverse(); 
+  myFace.happy_standby(); 
+// neutral
+  myFace.netural(); 
   myFace.happy_standby(); 
  //bounce 
   myFace.bounce(150);
