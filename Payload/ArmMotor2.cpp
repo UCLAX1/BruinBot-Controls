@@ -1,7 +1,7 @@
 // Motor A connections
 
 int ENCA = 2; // YELLOW
-int ENCB = 3; // WHITE
+int ENCB = 4; // WHITE
 int pwm = 5; // BLACK
 int in1 = 6; // RED
 int in2 = 7; // WHITE wire connected to motor driver
