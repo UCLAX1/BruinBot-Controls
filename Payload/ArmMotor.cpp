@@ -39,7 +39,6 @@ void loop() {
 	if (digitalRead(limit) == HIGH) {
 		currLimit = 2; // status to end loop
 	}
-	
 	// statement to start arm
 	if (currLimit == 0) {
 		// set target position
@@ -91,6 +90,10 @@ void loop() {
 
 		// store previous error
 		eprev = e;
+		
+		if (pos == target) {
+			currLimit = 1; //signals arm to reverse
+		}
 	}
 	// statement to have the arm reverse
 	else if (currLimit == 1) { 
