@@ -5,7 +5,7 @@ int ENCB = 3; // WHITE
 int pwm = 5; // BLACK
 int in1 = 6; // RED
 int in2 = 7; // WHITE wire connected to motor driver
-int limit = 1; // limit switch, change pin when integrated into circuit
+int limit = 8; // limit switch, change pin when integrated into circuit
 
 volatile int posi = 0;
 long prevT = 0;
