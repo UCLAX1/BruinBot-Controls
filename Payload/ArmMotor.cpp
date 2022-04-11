@@ -5,7 +5,7 @@ int ENCB = 3; // WHITE
 int pwm = 5; // BLACK
 int in1 = 6; // RED
 int in2 = 7; // WHITE wire connected to motor driver
-int limit = 1; // limit switch, change pin when integrated into circuit
+int limit = 8; // limit switch, change pin when integrated into circuit
 
 volatile int posi = 0;
 long prevT = 0;
@@ -39,7 +39,6 @@ void loop() {
 	if (digitalRead(limit) == HIGH) {
 		currLimit = 2; // status to end loop
 	}
-	
 	// statement to start arm
 	if (currLimit == 0) {
 		// set target position
@@ -91,6 +90,10 @@ void loop() {
 
 		// store previous error
 		eprev = e;
+		
+		if (pos == target) {
+			currLimit = 1; //signals arm to reverse
+		}
 	}
 	// statement to have the arm reverse
 	else if (currLimit == 1) { 

@@ -1,7 +1,7 @@
 // Motor A connections
 
 int ENCA = 2; // YELLOW
-int ENCB = 3; // WHITE
+int ENCB = 4; // WHITE
 int pwm = 5; // BLACK
 int in1 = 6; // RED
 int in2 = 7; // WHITE wire connected to motor driver
@@ -13,6 +13,7 @@ float eintegral = 0;
 
 
 void setup() {
+	Serial.begin(9600);
 	// Set input pins to read postion of motor
 	pinMode(ENCA,INPUT);
   	pinMode(ENCB,INPUT);
@@ -26,6 +27,8 @@ void setup() {
 	// Turn off motors - Initial state
 	digitalWrite(in1, LOW);
 	digitalWrite(in2, LOW);
+	
+	Serial.println("target pos");
 }
 
 void loop() {
@@ -78,7 +81,11 @@ void loop() {
 
 	// store previous error
 	eprev = e;
-
+	
+	Serial.print(target);
+        Serial.print(" ");
+        Serial.print(pos);
+        Serial.println();
 }
 
 // This function sets motor parameters
