@@ -1,7 +1,7 @@
 #include "Face.h"
 #include "LEDMatrix.h"
 
-#define WS2812_pin 8 // only digital pin 8 works right now! PLug LED panel into 3V, Gnd, and pin 8. 
+#define WS2812_pin 8 // only digital pin 8 works right now! PLug LED panel into 3.3V, Gnd, and pin 8. 
 #define numberOfLEDs 256// total number of RGB LEDs
 
 Face myFace(8); 
