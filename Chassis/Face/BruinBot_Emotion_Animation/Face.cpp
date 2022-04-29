@@ -6,10 +6,10 @@
         a. Pixel: 
             - contains x, y, and color data. 
         b. Frame: 
-            - contains a Vector of Pixel pointers that make up that frame 
+            - contains a vector of Pixel pointers that make up that frame 
             - contains suggested delay time for frame (can be overwritten) 
         c. Emotion: 
-            - contains a Vector of Frame pointers that make up the emotion in sequence 
+            - contains a vector of Frame pointers that make up the emotion in sequence 
             - contains a "nextEmotion" (pointer to another Emotion object)
             - contains an "interruptEmotion" (pointer to another Emotion object)
             - contains a bool "completes_self" which indicates if the emotion should interrupt its own animation while playing 
@@ -29,21 +29,17 @@
 */
 
 #include "Face.h"
-#include "LEDMatrix.h" 
-#include "Arduino.h"
-//#include<iostream>
-//#include <sys/utime.h>
-//#include <ctime>
-//#include <windows.h>
-//#define quote(x) #x
-
+//#include "LEDMatrix.h" 
+#include<string>
+#include<vector>
+#include<queue>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // **********************************************   COMPONENT CONSTRUCTORS   *******************************************
 
 // Present the constructors for each class type.
-Pixel::Pixel(int xcoord, int ycoord, byte pixelColor) 
+Pixel::Pixel(int xcoord, int ycoord, vector<int> pixelColor) 
 {
     x = xcoord; 
     y = ycoord;
@@ -55,8 +51,13 @@ Pixel::Pixel( const Pixel& old) { //pass in a reference to an old circle
     y = old.y;
     color = old.color;
 }
-
-Frame::Frame(Vector<Pixel*> pixels, int del = 100, int h = 0)
+int Pixel::getX() {
+    return x;
+}
+int Pixel::getY() {
+    return y;
+}
+Frame::Frame(vector<Pixel*> pixels, int del = 100, int h = 0)
 {
     // Assign world-level pointer info to member variables. 
     delay = del;
@@ -64,13 +65,13 @@ Frame::Frame(Vector<Pixel*> pixels, int del = 100, int h = 0)
 }
 // destruct the dynamically-allocated pixelList when destructing a frame. 
 Frame::~Frame() {
-    Vector<Pixel*>::VectorIterator objectIt;
+    vector<Pixel*>::iterator objectIt;
     for (objectIt = begin(pixelList); objectIt != end(pixelList); ++objectIt) {
         delete* objectIt;
     }
 }
 // Constructor: Construct each emotion by passing in all its relevant data and assigning it directly.  
-Emotion::Emotion(Vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes)
+Emotion::Emotion(vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = nextE;
@@ -80,7 +81,7 @@ Emotion::Emotion(Vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, boo
 }
 // This alternate constructor is used for an emotion where both its pointers point at itself. 
 // It is used for happy_standby as well as frame snippets. 
-Emotion::Emotion(Vector<Frame*> frames, bool completes)
+Emotion::Emotion(vector<Frame*> frames, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = this;
@@ -90,7 +91,7 @@ Emotion::Emotion(Vector<Frame*> frames, bool completes)
     frameList = frames;
 }
 //this constructor can be used for any emotion that loops (i.e. its nextEmotion is itself)
-Emotion::Emotion(Vector<Frame*> frames, Emotion* interruptE, bool completes)
+Emotion::Emotion(vector<Frame*> frames, Emotion* interruptE, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = this;
@@ -101,7 +102,7 @@ Emotion::Emotion(Vector<Frame*> frames, Emotion* interruptE, bool completes)
 }
 // Destruct list of frames (some emotions contain synamically-allocated frames)
 Emotion::~Emotion() {
-    Vector<Frame*>::VectorIterator objectIt;
+    vector<Frame*>::iterator objectIt;
     for (objectIt = begin(frameList); objectIt != end(frameList); ++objectIt) {
         delete* objectIt;
     }
@@ -283,43 +284,132 @@ angry_transition(
     &angry_standby,
     &angry_transition_reverse,
     true
-),
+)
 
 
-    m_matrix(pin)
+    //m_Matrix(pin)
 {
     //Rest of Face constructor
     currentEmotion = &happy_standby;
 
 }
+// Test the emotion web code here, eventually transfer to Arduino. 
+    int main() {
 
+        // "void Setup"  {
+            Face myFace(8); 
+
+            // set up queue with its starting emotion
+            cout << "Made face!"; 
+           
+            //push all frames of the first emotion to the queue. 
+            myFace.addFrames(myFace.currentEmotion);
+
+            myFace.currentFrame = myFace.frameQueue.front();
+        
+            time_t startTime = time(nullptr)*1000;
+            time_t prevMillis = time(nullptr)*1000;
+            time_t delay = myFace.currentFrame->delay;
+            int total_frames = 0;
+        // }
+
+        // This loop represents the "void loop" of the arduino
+        // put a time limit on it so its not infinite
+        while (time(nullptr) - startTime < 1000000) {
+            //cout << "Top of the while loop!";
+          
+            // CHECK FOR INTERRUPTS HERE
+            bool interrupted = false; 
+            if (total_frames == 2 || total_frames == 20){
+                interrupted = true; 
+            }
+            if (interrupted) {
+                //   ---> Set target based on message received! 
+                //    The target emotion should always be a TRANSITION emotion (not a standby emotion) since it may be interrupted as soon as it gets to the transition. 
+                Emotion* target = &myFace.angry_transition;
+                if (!myFace.currentEmotion->completesSelf) {
+                    // clear queue before adding new frames
+                    myFace.clearQueue();
+                }
+                //add new frames to end of queue
+                // Add the emotions until right before reaching happy_standby (the neutral position) 
+
+                Emotion* transitionEmotion = myFace.currentEmotion->interruptEmotion;
+
+                while (transitionEmotion != &myFace.happy_standby) {
+                    myFace.addFrames(transitionEmotion);
+                    transitionEmotion = transitionEmotion->interruptEmotion;
+                }
+                //now skip happy_standby and add the destination emotion to the queue.
+                // Now everything is set up to play out correctly. 
+                myFace.addFrames(target);
+                // not technically accurate as the current emotion will not be the target until the backlog of frames is finished displaying. But this will help the emotion web know how to proceed when it reaches the end of the queue. 
+                myFace.currentEmotion = target; 
+            }
+        
+            // FRAME DISPLAY CODE
+            //Now display the current frame in the queue, or change frames if enough time has passed. 
+            time_t currentMillis = time(nullptr) * 1000;
+
+            // if enough time has elapsed to switch to the next frame
+            //if ((currentMillis - prevMillis) > myFace.currentFrame->delay) {
+            if ((currentMillis - prevMillis) > 20) {
+                
+                cout << "delay passed: " << myFace.currentFrame->delay << " ms \n";
+                // check if frame needs to be refilled (only the current frame is left in it)
+                if (size(myFace.frameQueue) == 1) {
+                    //the current frame is the last frame in the list 
+                    // frame queue is empty; find the new emotion and add it to the queue. 
+                    //if (not interrupted) 
+                    myFace.currentEmotion = myFace.currentEmotion->nextEmotion;
+
+                    //push all frames of the new emotion to the queue. 
+                    myFace.addFrames(myFace.currentEmotion);
+                    cout << "pushed new emotions " << '\n';
+                }
+
+                // pop the current frame (which has now completed displaying) 
+                myFace.frameQueue.pop();
+                myFace.currentFrame = myFace.frameQueue.front();
+                delay = myFace.currentFrame->delay; 
+                prevMillis = currentMillis;
+                total_frames++;
+
+                // display new frame here (only displays once, when first initialized)
+                myFace.displayFrame(myFace.currentFrame);
+                cout << "current frame # of pixels: " << myFace.currentFrame->pixelList.size() << '\n';
+                cout << "Current time: " << currentMillis; 
+            }
+        }
+    }
+        
   
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ***************************************   HELPER FUNCTIONS   *****************************************
 
 /*
-Handwritten 'concatenate Vectors in one line' function because apparently none exist.Instead of taking in a variable number of arguments, the function instead requires that all input args (which are all Vectors of component pointers) are first combined into one Vector to be parsed. The following two "concatenate" functions are identical, but one handles Frames and one handles Pixels because c++ won't let me create a function with variable return type (and it doesn't make sense to use pointers here)
+Handwritten 'concatenate vectors in one line' function because apparently none exist.Instead of taking in a variable number of arguments, the function instead requires that all input args (which are all vectors of component pointers) are first combined into one vector to be parsed. The following two "concatenate" functions are identical, but one handles Frames and one handles Pixels because c++ won't let me create a function with variable return type (and it doesn't make sense to use pointers here)
 */
 // copy constructor 
 
 
-// feed in a Vector of pixel pointers and get out the same list, with the color of every pixel chanegd to a new color
+// feed in a vector of pixel pointers and get out the same list, with the color of every pixel chanegd to a new color
     
 void Face::displayFrame(Frame* frame) {
-    Vector<Pixel*> ::VectorVectorIterator pixIt;
+    vector<Pixel*> ::iterator pixIt;
     for (pixIt = begin(frame->pixelList); pixIt != end(frame->pixelList); ++pixIt) {
         Pixel newPix = **pixIt;
         int x = newPix.x;
         int y = newPix.y;
-        Vector<int> color = newPix.color;
-        m_matrix.mapLEDXY(x, y, color); 
+        vector<int> color = newPix.color;
+        // myFace.matrix.display(x, y, byte(color)); 
     }
     cout << "changed frame ";
 }
-Vector<Pixel*>  Face::changeColor(Vector<Pixel*> ogPixels, byte color) {
+vector<Pixel*>  Face::changeColor(vector<Pixel*> ogPixels, vector<int>color) {
     
-    Vector<Pixel*> newPixels;
-    Vector<Pixel*> ::VectorIterator pixIt;
+    vector<Pixel*> newPixels;
+    vector<Pixel*> ::iterator pixIt;
     for (pixIt = begin(ogPixels); pixIt != end(ogPixels); ++pixIt) {
         // point to the old pixel to extract the x and y values from it 
         Pixel* oldPix = *pixIt;
@@ -331,7 +421,7 @@ Vector<Pixel*>  Face::changeColor(Vector<Pixel*> ogPixels, byte color) {
 
 // Add an emotion's frames to the current frame queue. (all pass by reference)
 void  Face::addFrames(Emotion* emotion) {
-    Vector<Frame*> ::VectorIterator frameIt;
+    vector<Frame*> ::iterator frameIt;
     for (frameIt = begin(emotion->frameList); frameIt != end(emotion->frameList); ++frameIt) {
         frameQueue.push(*frameIt);
     }
@@ -340,43 +430,46 @@ void  Face::addFrames(Emotion* emotion) {
 // clears the entire queue except for the current (front) frame
 void  Face::clearQueue() {
     // save the current frame
-    Frame* currentFrame = frameQueue.peek();
+    Frame* currentFrame = frameQueue.front();
     while (!frameQueue.empty()) {
         frameQueue.pop();
     }
     frameQueue.push(currentFrame);
 }
    
-Vector<Frame*> Face::concatenate(Vector<Vector<Frame*>> vectors_to_add) {
+vector<Frame*> Face::concatenate(vector<vector<Frame*>> vectors_to_add) {
 
-    Vector<Frame*> combined;
-    // create an VectorIterator to iterate through the multiple "arguments"
-    Vector<Vector<Frame*>> ::VectorIterator argsIt;
+    vector<Frame*> combined;
+    // create an iterator to iterate through the multiple "arguments"
+    vector<vector<Frame*>> ::iterator argsIt;
     for (argsIt = begin(vectors_to_add); argsIt != end(vectors_to_add); ++argsIt) {
 
-        // create an VectorIterator to iterate through the multiple components in each entry
-        Vector<Frame*> ::VectorIterator objectIt;
+        // create an iterator to iterate through the multiple components in each entry
+        vector<Frame*> ::iterator objectIt;
         for (objectIt = begin(*argsIt); objectIt != end(*argsIt); ++objectIt) {
 
-            // add the frame to the combined Vector. 
+            // add the frame to the combined vector. 
             combined.push_back(*objectIt);
         }
     }
     return combined;
 }
 // Duplicate concatenate function for Pixels. 
-Vector<Pixel*> Face::concatenate(Vector<Vector<Pixel*>> vectors_to_add) {
+vector<Pixel*> Face::concatenate(vector<vector<Pixel*>> vectors_to_add) {
 
-    Vector<Pixel*> combined;
+    vector<Pixel*> combined;
 
-    for (Vector<Pixel*> pixelList : vectors_to_add) {
+    // create an iterator to iterate through the multiple "arguments"
+    vector<vector<Pixel*>> ::iterator argsIt;
+    for (argsIt = begin(vectors_to_add); argsIt != end(vectors_to_add); ++argsIt) {
 
-        // create an VectorIterator to iterate through the multiple components in each entry
-        //Vector<Pixel*> ::VectorIterator objectIt;
-        for (Pixel* pixel : pixelList)) {
+        // create an iterator to iterate through the multiple components in each entry
+        vector<Pixel*> ::iterator objectIt;
+        for (objectIt = begin(*argsIt); objectIt != end(*argsIt); ++objectIt) {
 
-            // add the pixel to the combined Vector. 
-            combined.push_back(pixel);
+            // add the pixel to the combined vector. 
+            combined.push_back(*objectIt);
         }
+    }
     return combined;
 }

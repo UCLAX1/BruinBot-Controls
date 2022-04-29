@@ -8,40 +8,47 @@
 
 #ifndef FACE_H
 #define FACE_H
-#include"Arduino.h"
-#include"LEDMatrix.h"
-#include"String.h"
-#include"Vector.h"
-#include"QueueList.h"
-//#include"Array.h"
+
+//#include "LEDMatrix.h"
+//#include"Emotion.h"
+#include <string>
+#include<stdlib.h> 
+#include<iterator>
+#include <vector>
+#include <queue>
+
+#include<pnew.cpp>
+using namespace std;
 
 class Pixel 
 {
 public: 
-    Pixel(int xcoord, int ycoord,  byte pixelColor);
+    Pixel(int xcoord, int ycoord, vector<int> pixelColor);
     Pixel(const Pixel& old);
     int x;
     int y;
-    byte color;
+    vector<int> color;
+    int getX(); 
+    int getY(); 
 };
 
 class Frame
 {
 public:
-    Frame(Vector<Pixel*>pixels, int del, int h);
+    Frame(vector<Pixel*>pixels, int del, int h);
     ~Frame();
     int delay;
-    Vector<Pixel*> pixelList;
+    vector<Pixel*> pixelList;
 };
 
 class Emotion
 {
 public:
-    Emotion(Vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes = true);
-    Emotion(Vector<Frame*> frames, bool completes = false);
-    Emotion(Vector<Frame*> frames, Emotion* interruptE, bool completes = false);
+    Emotion(vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes = true);
+    Emotion(vector<Frame*> frames, bool completes = false);
+    Emotion(vector<Frame*> frames, Emotion* interruptE, bool completes = false);
     ~Emotion(); 
-    Vector<Frame*> frameList;
+    vector<Frame*> frameList;
     Emotion* nextEmotion;
     Emotion* interruptEmotion;
     bool completesSelf;
@@ -52,7 +59,7 @@ class Face
 public:
     Face(int pin);
     void displayFrame(Frame* currentFrame);
-    QueueList<Frame*> frameQueue; 
+    queue<Frame*> frameQueue; 
     Emotion* currentEmotion;
     Frame* currentFrame;
     void addFrames(Emotion* emotion);
@@ -167,21 +174,21 @@ private:
     // COLORS 
     // usually, a pixel will use one of these variables to set its own color, although occasionally it will define a custom color to use. 
         //default eye color: blue
-        int eyeColor[3] = { 0,0,100 };
+        vector<int> eyeColor = {0,0,100};
         //default mouth colors: white
-        int mouthColor[3] = { 10,10,10 };
+        vector<int> mouthColor = { 10,10,10 };
         //default eyebrowColor: dark blue
-        int eyebrowColor[3] = { 10,0,0 };
+        vector<int> eyebrowColor = { 10,0,0 };
         // specialty colors for transitional animations
-        int angryEyebrowColor[3] = { 10, 0, 0 };
-        int angryEyeColor[3] = { 120, 0, 0 };
+        vector<int> angryEyebrowColor = { 10, 0, 0 };
+        vector<int> angryEyeColor = { 120, 0, 0 };
 
     
 
     // Helper Functions
-    Vector<Frame*> concatenate(Vector<Vector<Frame*>> Vectors_to_add);
-    Vector<Pixel*> concatenate(Vector<Vector<Pixel*>> Vectors_to_add);
-    Vector<Pixel*> changeColor(Vector<Pixel*> ogPixels, Vector<int>color);
+    vector<Frame*> concatenate(vector<vector<Frame*>> vectors_to_add);
+    vector<Pixel*> concatenate(vector<vector<Pixel*>> vectors_to_add);
+    vector<Pixel*> changeColor(vector<Pixel*> ogPixels, vector<int>color);
 
    
 };

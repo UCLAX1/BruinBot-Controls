@@ -1,6 +1,7 @@
 #include "Face.h"
 #include "LEDMatrix.h"
 #include"Arduino.h"
+#include<vector>
 #define WS2812_pin 8 // only digital pin 8 works right now! PLug LED panel into 3.3V, Gnd, and pin 8. 
 #define numberOfLEDs 256// total number of RGB LEDs
 
@@ -13,7 +14,16 @@ void setup() {
     //Set up hardware
     pinMode(WS2812_pin, OUTPUT);
     Serial.begin(9600);
-    
+
+    std::vector<int> vec;
+    std::vector<int>::const_iterator it;
+    int i;
+
+    vec.reserve(50);
+    for(i=0;i<50;i++)
+      vec.push_back(i);
+
+      
     // set up queue with its starting emotion
     //push all frames of the first emotion to the queue. 
     myFace.addFrames(myFace.currentEmotion);

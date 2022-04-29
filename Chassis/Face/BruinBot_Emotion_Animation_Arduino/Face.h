@@ -11,37 +11,47 @@
 #include"Arduino.h"
 #include"LEDMatrix.h"
 #include"String.h"
-#include"Vector.h"
 #include"QueueList.h"
+using Framen = Pixel*; 
 //#include"Array.h"
 
-class Pixel 
+const int MAX_PIXELS = 50; 
+const int MAX_FRAMES = 10;
+
+// Empty base class 
+class Component {
+
+};
+
+class Pixel: public Component 
 {
 public: 
-    Pixel(int xcoord, int ycoord,  byte pixelColor);
+    Pixel(int xcoord, int ycoord,  int pixelColor[3]);
     Pixel(const Pixel& old);
     int x;
     int y;
-    byte color;
+    int color[3];
 };
 
-class Frame
+class Frame: public Component
 {
 public:
-    Frame(Vector<Pixel*>pixels, int del, int h);
+    Frame(int numPixels, Pixel* pixels[], int h);
     ~Frame();
     int delay;
-    Vector<Pixel*> pixelList;
+    int numPixels;
+    Pixel* pixelList[MAX_PIXELS];
 };
 
-class Emotion
+class Emotion: public Component
 {
 public:
-    Emotion(Vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes = true);
-    Emotion(Vector<Frame*> frames, bool completes = false);
-    Emotion(Vector<Frame*> frames, Emotion* interruptE, bool completes = false);
+    Emotion(Frame* frames[], int num_frames, Emotion* nextE, Emotion* interruptE, bool completes = true);
+    Emotion(Frame* frames[], int num_frames, bool completes = false);
+    Emotion(Frame* frames[], int num_frames, Emotion* interruptE, bool completes = false);
     ~Emotion(); 
-    Vector<Frame*> frameList;
+    Frame* frameList[MAX_FRAMES];
+    int numFrames;
     Emotion* nextEmotion;
     Emotion* interruptEmotion;
     bool completesSelf;
@@ -52,7 +62,7 @@ class Face
 public:
     Face(int pin);
     void displayFrame(Frame* currentFrame);
-    QueueList<Frame*> frameQueue; 
+    QueueList<Frame*> frameQueue;
     Emotion* currentEmotion;
     Frame* currentFrame;
     void addFrames(Emotion* emotion);
@@ -61,10 +71,15 @@ public:
     //LEDMatrix* matrix; 
 
     // "frame snippets" that contain a handful of pixel objects representing only the mouth, eyes, etc.
+    Framen smile[4] = {
+        new Pixel(6, 12, mouthColor),
+        new Pixel(7, 13, mouthColor),
+        new Pixel(8, 13, mouthColor),
+        new Pixel(9, 12, mouthColor) };
 
     Frame basic_smile;
     Frame basic_eyes;
-    
+
    // Frame neutral_mouth;
     //Frame happy_em_eyes;
     Frame angry_mouth; 
@@ -179,8 +194,9 @@ private:
     
 
     // Helper Functions
-    Vector<Frame*> concatenate(Vector<Vector<Frame*>> Vectors_to_add);
-    Vector<Pixel*> concatenate(Vector<Vector<Pixel*>> Vectors_to_add);
+   
+    Frame** concatenate(int size1, int size2, Frame* list1[], Frame* list2[]);
+    Pixel** concatenate(int size1, int size2, Pixel* list1[], Pixel* list2[]);
     Vector<Pixel*> changeColor(Vector<Pixel*> ogPixels, Vector<int>color);
 
    

@@ -31,11 +31,28 @@
 #include "Face.h"
 #include "LEDMatrix.h" 
 #include "Arduino.h"
+#include "stdarg.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "QueueList.h"
 //#include<iostream>
 //#include <sys/utime.h>
 //#include <ctime>
 //#include <windows.h>
 //#define quote(x) #x
+// 
+// 
+// COLORS 
+    // usually, a pixel will use one of these variables to set its own color, although occasionally it will define a custom color to use. 
+        //default eye color: blue
+int eyeColor[3] = { 0,0,100 };
+//default mouth colors: white
+int mouthColor[3] = { 10,10,10 };
+//default eyebrowColor: dark blue
+int eyebrowColor[3] = { 10,0,0 };
+// specialty colors for transitional animations
+int angryEyebrowColor[3] = { 10, 0, 0 };
+int angryEyeColor[3] = { 120, 0, 0 };
 
 
 
@@ -43,69 +60,104 @@
 // **********************************************   COMPONENT CONSTRUCTORS   *******************************************
 
 // Present the constructors for each class type.
-Pixel::Pixel(int xcoord, int ycoord, byte pixelColor) 
+Pixel::Pixel(int xcoord, int ycoord, int pixelColor[3])
 {
     x = xcoord; 
     y = ycoord;
-    color = pixelColor;
+    copy(pixelColor, color, 3);
 }
 
-Pixel::Pixel( const Pixel& old) { //pass in a reference to an old circle
+Pixel::Pixel( const Pixel& old) { //pass in a reference to an old pixel
     x = old.x;
     y = old.y;
-    color = old.color;
+    copy(old.color, color, 3);
 }
 
-Frame::Frame(Vector<Pixel*> pixels, int del = 100, int h = 0)
+//Frame receives a pointer to the first entry of an array of Pixel pointers, as well as an int number of pixels. They immediately copy the array into their own data (so the pointer that is read in is not needed again). 
+Frame::Frame(int num_pixels, Pixel** pixels, int h = 0)
 {
     // Assign world-level pointer info to member variables. 
-    delay = del;
-    pixelList = pixels;
+    numPixels = num_pixels;
+    copy(pixels, pixelList, numPixels);
 }
 // destruct the dynamically-allocated pixelList when destructing a frame. 
 Frame::~Frame() {
-    Vector<Pixel*>::iterator objectIt;
-    for (objectIt = begin(pixelList); objectIt != end(pixelList); ++objectIt) {
-        delete* objectIt;
+
+    for (int i = 0; i < numPixels; i++) {
+        delete pixelList[i];
     }
 }
 // Constructor: Construct each emotion by passing in all its relevant data and assigning it directly.  
-Emotion::Emotion(Vector<Frame*> frames, Emotion* nextE, Emotion* interruptE, bool completes)
+Emotion::Emotion(Frame* frames[], int num_frames, Emotion* nextE, Emotion* interruptE, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = nextE;
     interruptEmotion = interruptE; 
     completesSelf = completes;
-    frameList = frames;
+    copy(frames, frameList, num_frames);
 }
 // This alternate constructor is used for an emotion where both its pointers point at itself. 
 // It is used for happy_standby as well as frame snippets. 
-Emotion::Emotion(Vector<Frame*> frames, bool completes)
+Emotion::Emotion(Frame* frames[], int num_frames, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = this;
     interruptEmotion = this;
     // by default, an emotion is set to continue its actions even when receiving an interrupt. 
     completesSelf = completes;
-    frameList = frames;
+    copy(frames, frameList, MAX_PIXELS);
 }
 //this constructor can be used for any emotion that loops (i.e. its nextEmotion is itself)
-Emotion::Emotion(Vector<Frame*> frames, Emotion* interruptE, bool completes)
+Emotion::Emotion(Frame* frames[], int num_frames, Emotion* interruptE, bool completes)
 {
     // Assign world-level pointer info to member variables. 
     nextEmotion = this;
     interruptEmotion = interruptE;
     // by default, an emotion is set to continue its actions even when receiving an interrupt. 
     completesSelf = completes;
-    frameList = frames;
+    copy(frames, frameList, MAX_PIXELS);
 }
 // Destruct list of frames (some emotions contain synamically-allocated frames)
 Emotion::~Emotion() {
-    Vector<Frame*>::iterator objectIt;
-    for (objectIt = begin(frameList); objectIt != end(frameList); ++objectIt) {
-        delete* objectIt;
+    
+    for (int i = 0; i < numFrames; i++) {
+        delete frameList[i];
     }
 }
+
+// ********************************  STUPID LONG-ASS LISTS OF PIXELS ******************************************
+// 
+//   I promise you I wrote all this code in a way that was 10000% more efficient and then I had to rewrite everything because of the dumb limitations of the Arduino programming language. 
+
+// These lists represent the lists of pixels that will later be imported into each frame. Each list comes with a constant int of the same name representing its length. 
+
+
+const int BASIC_SMILE = 4; 
+const int BASIC_EYES = 8;
+const int ANGRY_MOUTH= 4; 
+
+const int ANGRY_EYES = 6; 
+Pixel* angry_eyebrows_p[] = {
+    new Pixel(2,5, angryEyebrowColor),
+    new Pixel(3,6, angryEyebrowColor),
+    new Pixel(4,7, angryEyebrowColor),
+    new Pixel(11,7, angryEyebrowColor),
+    new Pixel(12,6, angryEyebrowColor),
+    new Pixel(13,5, angryEyebrowColor)
+};
+const int ANGRY_EYEBROWS = 6; 
+Pixel* blink_frame1_p[] = {
+    new Pixel(2, 10, eyeColor),
+    new Pixel(3, 10, eyeColor),
+    new Pixel(12, 10, eyeColor),
+    new Pixel(13, 10, eyeColor)
+};
+const int BLINK_FRAME1 = 4; 
+
+
+
+
+
 // The Face objejct contains a set of emotion objects and an LED matrix object. 
 Face::Face(int pin)
 
@@ -113,84 +165,109 @@ Face::Face(int pin)
 // **********************************************   FRAME AND EMOTION INITIALIZATION   *********************************
 
 // Initializer list for the Face class contains all of the actual data making up the frames and emotions 
-// Frames: construct frames with a list of pixels and a delay time (optional)
-// Default delay time is 100 ms (10 frames/sec) 
+// Frames: construct frames with a # of pixels and a list of pixels
 // Use "concatenate" function to combine lists with other lists (useful for adding 'snippets' to the frameList or pixelList of an object)
 
 :
+// ****************************************************    FRAME SNIPPETS   **************************************************
+
+//Construct the "Frame Snippets" from the pre-written list of pixels. 
 basic_smile(
-    {
-    new Pixel(6, 12, mouthColor),
-    new Pixel(7, 13, mouthColor),
-    new Pixel(8, 13, mouthColor),
-    new Pixel(9, 12, mouthColor)
-    }),
-
+    BASIC_SMILE,       
+    makePArray(
+        BASIC_SMILE, 
+        new Pixel(6, 12, mouthColor),
+        new Pixel(7, 13, mouthColor),
+        new Pixel(8, 13, mouthColor),
+        new Pixel(9, 12, mouthColor)
+    )
+),
 basic_eyes(
-    {
-    new Pixel(2, 9, eyeColor),
-    new Pixel(2, 10, eyeColor),
-    new Pixel(3, 9, eyeColor),
-    new Pixel(3, 10, eyeColor),
-    new Pixel(12, 9, eyeColor),
-    new Pixel(12, 10, eyeColor),
-    new Pixel(13, 9, eyeColor),
-    new Pixel(13, 10, eyeColor)
-    }),
+    BASIC_EYES, 
+    makePArray(
+        BASIC_EYES,
+        new Pixel(2, 9, eyeColor),
+        new Pixel(2, 10, eyeColor),
+        new Pixel(3, 9, eyeColor),
+        new Pixel(3, 10, eyeColor),
+        new Pixel(12, 9, eyeColor),
+        new Pixel(12, 10, eyeColor),
+        new Pixel(13, 9, eyeColor),
+        new Pixel(13, 10, eyeColor)
+    )
+),
 angry_mouth(
-    {
-    new Pixel(6,13, mouthColor),
-    new Pixel(7,13, mouthColor),
-    new Pixel(8,13, eyeColor),
-    new Pixel(9,13, eyeColor)
-    }),
+    ANGRY_MOUTH,     
+    makePArray(
+        ANGRY_MOUTH,
+        new Pixel(6,13, mouthColor),
+        new Pixel(7,13, mouthColor),
+        new Pixel(8,13, eyeColor),
+        new Pixel(9,13, eyeColor)
+    )
+),
 angry_eyes(
-    {
-     new Pixel(2,9, angryEyeColor),
-    new Pixel(2, 10, angryEyeColor),
-    new Pixel(3, 10, angryEyeColor),
-    new Pixel(12, 10, angryEyeColor),
-    new Pixel(13,9, angryEyeColor),
-    new Pixel(13,10, angryEyeColor)
-    }),
+    ANGRY_EYES,
+    makePArray(
+        ANGRY_EYES,
+        new Pixel(2, 9, angryEyeColor),
+        new Pixel(2, 10, angryEyeColor),
+        new Pixel(3, 10, angryEyeColor),
+        new Pixel(12, 10, angryEyeColor),
+        new Pixel(13, 9, angryEyeColor),
+        new Pixel(13, 10, angryEyeColor)
+    )
+),
 angry_eyebrows(
-    {
-    new Pixel(2,5, angryEyebrowColor),
-    new Pixel(3,6, angryEyebrowColor),
-    new Pixel(4,7, angryEyebrowColor),
-    new Pixel(11,7, angryEyebrowColor),
-    new Pixel(12,6, angryEyebrowColor),
-    new Pixel(13,5, angryEyebrowColor)
-    }),
-
+    ANGRY_EYEBROWS,
+    makePArray(
+        ANGRY_EYEBROWS,
+        new Pixel(2, 5, angryEyebrowColor),
+        new Pixel(3, 6, angryEyebrowColor),
+        new Pixel(4, 7, angryEyebrowColor),
+        new Pixel(11, 7, angryEyebrowColor),
+        new Pixel(12, 6, angryEyebrowColor),
+        new Pixel(13, 5, angryEyebrowColor)
+    )
+),
 // *********************************************************    FRAMES   **************************************************
 happy_frame1(
-    concatenate({
-        basic_eyes.pixelList,
+    BASIC_EYES + BASIC_SMILE,
+    concatenate(
+        BASIC_EYES,
+        BASIC_SMILE,
+        basic_eyes.pixelList, 
         basic_smile.pixelList
-    })
+    )
 ),
 blink_frame1(
-    concatenate({
-        {
-        new Pixel(2, 10, eyeColor),
-        new Pixel(3, 10, eyeColor),
-        new Pixel(12, 10, eyeColor),
-        new Pixel(13, 10, eyeColor)
-        },
+    4 + BASIC_SMILE,
+    concatenate(
+        4,
+        BASIC_SMILE,
+        makePArray(
+            4,
+            new Pixel(2, 10, eyeColor),
+            new Pixel(3, 10, eyeColor),
+            new Pixel(12, 10, eyeColor),
+            new Pixel(13, 10, eyeColor)
+        ),
         basic_smile.pixelList
-    })
+    )
 ),
 angry_frame1(
-    concatenate({
-        {
-        new Pixel(2, 10, eyeColor),
-        new Pixel(3, 10, eyeColor),
-        new Pixel(12, 10, eyeColor),
-        new Pixel(13, 10, eyeColor)
-        },
+    4 + ANGRY_MOUTH,
+    concatenate(
+        4, ANGRY_MOUTH,
+        makePArray(
+            4, 
+            new Pixel(2, 10, eyeColor),
+            new Pixel(3, 10, eyeColor),
+            new Pixel(12, 10, eyeColor),
+            new Pixel(13, 10, eyeColor)
+            ),
         angry_mouth.pixelList
-    })
+    )
 ),
 angry_frame2(
     concatenate({
@@ -246,9 +323,10 @@ angry_blink_frame2(
         angry_eyebrows.pixelList
         })
 ),
+*/
 // *****************************************************   EMOTIONS *****************************************************
 
-blink(
+blink(concatenate()
    { &blink_frame1, &basic_smile, &blink_frame1 }
 ),
 angry_blink(
@@ -302,9 +380,25 @@ Handwritten 'concatenate Vectors in one line' function because apparently none e
 */
 // copy constructor 
 
-
-// feed in a Vector of pixel pointers and get out the same list, with the color of every pixel chanegd to a new color
-    
+// Copy an array of Pixels into another array (since arrays are immutable) 
+void copy(Pixel* OGPixels[], Pixel* newArray[], int arraySize) { //Copy function
+    for (int i = 0; i < arraySize; i++) {
+        newArray[i] = OGPixels[i];
+    }
+}
+// Same thing but with Frames
+void copy(Frame* OGFrames[], Frame* newArray[], int arraySize) { //Copy function
+    for (int i = 0; i < arraySize; i++) {
+        newArray[i] = OGFrames[i];
+    }
+}
+// Same thing but with bytes
+void copy(const int OGints[], int newArray[], int arraySize) { //Copy function
+    for (int i = 0; i < arraySize; i++) {
+        newArray[i] = OGints[i];
+    }
+}
+//Display a frame using the tools of the LEDMatrix class. 
 void Face::displayFrame(Frame* frame) {
     Vector<Pixel*> ::iterator pixIt;
     for (pixIt = begin(frame->pixelList); pixIt != end(frame->pixelList); ++pixIt) {
@@ -316,6 +410,8 @@ void Face::displayFrame(Frame* frame) {
     }
     cout << "changed frame ";
 }
+// feed in a Vector of pixel pointers and get out the same list, with the color of every pixel chanegd to a new color
+
 Vector<Pixel*>  Face::changeColor(Vector<Pixel*> ogPixels, byte color) {
     
     Vector<Pixel*> newPixels;
@@ -341,42 +437,65 @@ void  Face::addFrames(Emotion* emotion) {
 void  Face::clearQueue() {
     // save the current frame
     Frame* currentFrame = frameQueue.peek();
-    while (!frameQueue.empty()) {
+    while (!frameQueue.isEmpty) {
         frameQueue.pop();
     }
     frameQueue.push(currentFrame);
 }
-   
-Vector<Frame*> Face::concatenate(Vector<Vector<Frame*>> Vectors_to_add) {
-
-    Vector<Frame*> combined;
-    // create an iterator to iterate through the multiple "arguments"
-    Vector<Vector<Frame*>> ::iterator argsIt;
-    for (argsIt = begin(Vectors_to_add); argsIt != end(Vectors_to_add); ++argsIt) {
-
-        // create an iterator to iterate through the multiple components in each entry
-        Vector<Frame*> ::iterator objectIt;
-        for (objectIt = begin(*argsIt); objectIt != end(*argsIt); ++objectIt) {
-
-            // add the frame to the combined Vector. 
-            combined.push_back(*objectIt);
-        }
+// makes an array out of a list of arguments in one line (just like is possible in the std library) 
+Frame** makeFArray(int num, ...) {
+    va_list args;
+    static Frame* newArray[20];
+    //Initializing arguments to store all values after num
+    va_start(args, num);
+    //Sum all the inputs; we still rely on the function caller to tell us how many there are
+    for (int x = 0; x < num; x++)
+    {
+        newArray[x] = va_arg(args, Frame*);
     }
-    return combined;
+    va_end(args);                  // Cleans up the list
+    return newArray;
+}
+Pixel** makePArray(int num, ...) {
+    va_list args;
+    static Pixel* newArray[20];
+    //Initializing arguments to store all values after num
+    va_start(args, num);
+    //Sum all the inputs; we still rely on the function caller to tell us how many there are
+    for (int x = 0; x < num; x++)
+    {
+        newArray[x] = va_arg(args, Pixel*);
+    }
+    va_end(args);                  // Cleans up the list
+    return newArray;
+}
+// Concatenate for frames: adds two arrays of frames together. 
+//concatenate returns a pointer to a static, new array created that contains all of the values we wanted to add together. 
+
+Frame** Face::concatenate(int size1, int size2, Frame* list1[], Frame* list2[]) {
+    static Frame* newArray[20]; 
+    int i = 0; 
+    for (int j = 0; j < size1; j++) {
+        newArray[i] = list1[j]; 
+        i++;
+    }
+    for (int j = 0; j < size2; j++) {
+        newArray[i] = list2[j];
+        i++;
+    }
+    return newArray;
 }
 // Duplicate concatenate function for Pixels. 
-Vector<Pixel*> Face::concatenate(Vector<Vector<Pixel*>> Vectors_to_add) {
-
-    Vector<Pixel*> combined;
-
-    for (Vector<Pixel*> pixelList : vectors_to_add) {
-
-        // create an iterator to iterate through the multiple components in each entry
-        //Vector<Pixel*> ::iterator objectIt;
-        for (Pixel* pixel : pixelList)) {
-
-            // add the pixel to the combined Vector. 
-            combined.push_back(pixel);
-        }
-    return combined;
+Pixel** Face::concatenate(int size1, int size2, Pixel* list1[], Pixel* list2[]) {
+    static Pixel* newArray[20];
+    int i = 0;
+    for (int j = 0; j < size1; j++) {
+        newArray[i] = list1[j];
+        i++;
+    }
+    for (int j = 0; j < size2; j++) {
+        newArray[i] = list2[j];
+        i++;
+    }
+    return newArray;
 }
