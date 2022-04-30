@@ -2,7 +2,7 @@ import serial
 import time
 
 # ID the serial ports that appear the same
-def usb_id(name_list=[], usb_prefix="/dev/ttyUSB", baud_rate=9600, timeout=1):
+def usb_id(name_list=[], usb_prefix="/dev/ttyACM", baud_rate=9600, timeout=1):
 	# Set timeout while waiting for each port's response
 
 	num_ports = len(name_list)
@@ -24,9 +24,9 @@ def usb_id(name_list=[], usb_prefix="/dev/ttyUSB", baud_rate=9600, timeout=1):
 			connections += 1
 
 			# Opening serial port reboots Arduino, wait a bit before trying to talk
-			time.sleep(2)
+			# time.sleep(2)
 			
-			ser.write(b'i')
+			# ser.write(b'i')
 
 			handshake_done = False
 			start = time.time()
@@ -34,8 +34,8 @@ def usb_id(name_list=[], usb_prefix="/dev/ttyUSB", baud_rate=9600, timeout=1):
 				if time.time()-start > timeout:
 					print("USB{} handshake timed out".format(j))
 					break
-				if ser.in_waiting > 0:
-					line = ser.readline().decode("utf-8").rstrip("\r\n")
+				line = ser.readline().decode("utf-8").rstrip("\r\n")
+				if line != "":
 					for n in name_list:
 						if line == n:
 							ports[n] = serial.Serial(port_name, baud_rate)
@@ -122,7 +122,7 @@ def finish(ports):
 if __name__ == "__main__":
 
 	name_list = ["motor", "sensors"]
-	ports = usb_id(name_list=name_list, usb_prefix="/dev/ttyUSB", baud_rate=9600, timeout=1)
+	ports = usb_id(name_list=name_list, usb_prefix="/dev/ttyACM", baud_rate=9600, timeout=1)
 
 	finished = False
 	while not finished:
