@@ -413,10 +413,7 @@ void Face::bored_frame1() {
 void Face::blink_frame1() {
     //eyes
     m_Matrix.mapLEDXY(2, 10, eyeColor); m_Matrix.mapLEDXY(3, 10, eyeColor); m_Matrix.mapLEDXY(12, 10, eyeColor); m_Matrix.mapLEDXY(13, 10, eyeColor);
-    2,10
-    3,10
-    12,10
-    13,10
+ 
     //mouth
     basic_smile(0);
 }

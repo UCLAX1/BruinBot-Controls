@@ -12,7 +12,6 @@
 #include"LEDMatrix.h"
 #include"String.h"
 #include"QueueList.h"
-using Framen = Pixel*; 
 //#include"Array.h"
 
 const int MAX_PIXELS = 50; 
@@ -26,11 +25,11 @@ class Component {
 class Pixel: public Component 
 {
 public: 
-    Pixel(int xcoord, int ycoord,  int pixelColor[3]);
+    Pixel(int xcoord, int ycoord,  byte pixelColor[3]);
     Pixel(const Pixel& old);
     int x;
     int y;
-    int color[3];
+    byte color[3];
 };
 
 class Frame: public Component
@@ -38,7 +37,6 @@ class Frame: public Component
 public:
     Frame(int numPixels, Pixel* pixels[], int h);
     ~Frame();
-    int delay;
     int numPixels;
     Pixel* pixelList[MAX_PIXELS];
 };
@@ -46,9 +44,9 @@ public:
 class Emotion: public Component
 {
 public:
-    Emotion(Frame* frames[], int num_frames, Emotion* nextE, Emotion* interruptE, bool completes = true);
-    Emotion(Frame* frames[], int num_frames, bool completes = false);
-    Emotion(Frame* frames[], int num_frames, Emotion* interruptE, bool completes = false);
+    Emotion(int num_frames, Frame* frames[], Emotion* nextE, Emotion* interruptE, bool completes = true);
+    Emotion(int num_frames, Frame* frames[], bool completes = false);
+    Emotion(int num_frames, Frame* frames[], Emotion* interruptE, bool completes = false);
     ~Emotion(); 
     Frame* frameList[MAX_FRAMES];
     int numFrames;
@@ -68,14 +66,9 @@ public:
     void addFrames(Emotion* emotion);
     void clearQueue();
 
-    //LEDMatrix* matrix; 
+    LEDMatrix matrix; 
 
     // "frame snippets" that contain a handful of pixel objects representing only the mouth, eyes, etc.
-    Framen smile[4] = {
-        new Pixel(6, 12, mouthColor),
-        new Pixel(7, 13, mouthColor),
-        new Pixel(8, 13, mouthColor),
-        new Pixel(9, 12, mouthColor) };
 
     Frame basic_smile;
     Frame basic_eyes;
@@ -153,6 +146,8 @@ public:
 
     Emotion blink;
     Emotion angry_blink;
+    Emotion long_happy; 
+    Emotion long_angry;
     /*
     Emotion sad_blink;
     Emotion neutral_blink;
@@ -182,14 +177,14 @@ private:
     // COLORS 
     // usually, a pixel will use one of these variables to set its own color, although occasionally it will define a custom color to use. 
         //default eye color: blue
-        int eyeColor[3] = { 0,0,100 };
+        byte eyeColor[3] = { 0,0,100 };
         //default mouth colors: white
-        int mouthColor[3] = { 10,10,10 };
+        byte mouthColor[3] = { 10,10,10 };
         //default eyebrowColor: dark blue
-        int eyebrowColor[3] = { 10,0,0 };
+        byte eyebrowColor[3] = { 10,0,0 };
         // specialty colors for transitional animations
-        int angryEyebrowColor[3] = { 10, 0, 0 };
-        int angryEyeColor[3] = { 120, 0, 0 };
+        byte angryEyebrowColor[3] = { 10, 0, 0 };
+        byte angryEyeColor[3] = { 120, 0, 0 };
 
     
 
@@ -197,7 +192,7 @@ private:
    
     Frame** concatenate(int size1, int size2, Frame* list1[], Frame* list2[]);
     Pixel** concatenate(int size1, int size2, Pixel* list1[], Pixel* list2[]);
-    Vector<Pixel*> changeColor(Vector<Pixel*> ogPixels, Vector<int>color);
+    Pixel** changeColor(int size, Pixel* ogPixels[], byte r, byte g, byte b);
 
    
 };
