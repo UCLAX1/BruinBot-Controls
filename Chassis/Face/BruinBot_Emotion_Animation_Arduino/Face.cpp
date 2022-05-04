@@ -35,42 +35,37 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "QueueList.h"
-//#include<iostream>
-//#include <sys/utime.h>
-//#include <ctime>
-//#include <windows.h>
-//#define quote(x) #x
-// 
-// 
-// COLORS 
-    // usually, a pixel will use one of these variables to set its own color, although occasionally it will define a custom color to use. 
-        //default eye color: blue
-int eyeColor[3] = { 0,0,100 };
-//default mouth colors: white
-int mouthColor[3] = { 10,10,10 };
-//default eyebrowColor: dark blue
-int eyebrowColor[3] = { 10,0,0 };
-// specialty colors for transitional animations
-int angryEyebrowColor[3] = { 10, 0, 0 };
-int angryEyeColor[3] = { 120, 0, 0 };
 
+// Since I have to use arrays instead of vectors, I need to know the size of each relevant list I pass through. These variables help simplify that
+
+// frame pixellist lengths 
+const int BASIC_SMILE = 4;
+const int BASIC_EYES = 8;
+const int ANGRY_MOUTH = 4;
+const int ANGRY_EYES = 6;
+const int ANGRY_EYEBROWS = 6;
+//emotion framelist lengths 
+const int BLINK = 3;
+const int ANGRY_BLINK = 3;
+const int LONG_HAPPY = 20;
+const int ANGRY_TRANSITION = 5;
+const int LONG_ANGRY = 20;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // **********************************************   COMPONENT CONSTRUCTORS   *******************************************
 
 // Present the constructors for each class type.
-Pixel::Pixel(int xcoord, int ycoord, byte pixelColor[3])
-{
+Pixel::Pixel(int xcoord, int ycoord, byte pixelColor[3]){
     x = xcoord; 
     y = ycoord;
-    copy(pixelColor, color, 3);
+    copyB(pixelColor, color, 3);
 }
 
 Pixel::Pixel( const Pixel& old) { //pass in a reference to an old pixel
     x = old.x;
     y = old.y;
-    copy(old.color, color, 3);
+    copyB(old.color, color, 3);
 }
 
 //Frame receives a pointer to the first entry of an array of Pixel pointers, as well as an int number of pixels. They immediately copy the array into their own data (so the pointer that is read in is not needed again). 
@@ -78,7 +73,7 @@ Frame::Frame(int num_pixels, Pixel** pixels, int h = 0)
 {
     // Assign world-level pointer info to member variables. 
     numPixels = num_pixels;
-    copy(pixels, pixelList, numPixels);
+    copyP(pixels, pixelList, numPixels);
 }
 // destruct the dynamically-allocated pixelList when destructing a frame. 
 Frame::~Frame() {
@@ -94,7 +89,7 @@ Emotion::Emotion(int num_frames, Frame* frames[], Emotion* nextE, Emotion* inter
     nextEmotion = nextE;
     interruptEmotion = interruptE; 
     completesSelf = completes;
-    copy(frames, frameList, num_frames);
+    copyF(frames, frameList, num_frames);
 }
 // This alternate constructor is used for an emotion where both its pointers point at itself. 
 // It is used for happy_standby as well as frame snippets. 
@@ -105,7 +100,7 @@ Emotion::Emotion(int num_frames, Frame* frames[], bool completes)
     interruptEmotion = this;
     // by default, an emotion is set to continue its actions even when receiving an interrupt. 
     completesSelf = completes;
-    copy(frames, frameList, MAX_PIXELS);
+    copyF(frames, frameList, MAX_PIXELS);
 }
 //this constructor can be used for any emotion that loops (i.e. its nextEmotion is itself)
 Emotion::Emotion(int num_frames, Frame* frames[], Emotion* interruptE, bool completes)
@@ -115,7 +110,7 @@ Emotion::Emotion(int num_frames, Frame* frames[], Emotion* interruptE, bool comp
     interruptEmotion = interruptE;
     // by default, an emotion is set to continue its actions even when receiving an interrupt. 
     completesSelf = completes;
-    copy(frames, frameList, MAX_PIXELS);
+    copyF(frames, frameList, MAX_PIXELS);
 }
 // Destruct list of frames (some emotions contain synamically-allocated frames)
 Emotion::~Emotion() {
@@ -125,50 +120,30 @@ Emotion::~Emotion() {
     }
 }
 
-// ********************************  STUPID LONG-ASS LISTS OF PIXELS ******************************************
-// 
-//   I promise you I wrote all this code in a way that was 10000% more efficient and then I had to rewrite everything because of the dumb limitations of the Arduino programming language. 
-
-// These lists represent the lists of pixels that will later be imported into each frame. Each list comes with a constant int of the same name representing its length. 
-
-// frame pixellist lengths 
-const int BASIC_SMILE = 4; 
-const int BASIC_EYES = 8;
-const int ANGRY_MOUTH= 4; 
-const int ANGRY_EYES = 6;  
-const int ANGRY_EYEBROWS = 6; 
-//emotion framelist lengths 
-const int BLINK = 3;
-const int ANGRY_BLINK = 3;
-const int LONG_HAPPY = 20; 
-const int ANGRY_TRANSITION = 5; 
-const int LONG_ANGRY = 20; 
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ***************************************   HELPER FUNCTIONS   *****************************************
 
-
-// copy constructor 
-
 // Copy an array of Pixels into another array (since arrays are immutable) 
-void copy(Pixel* OGPixels[], Pixel* newArray[], int arraySize) { //Copy function
+void Frame::copyP(Pixel* OGPixels[], Pixel* newArray[], int arraySize) { //Copy function
     for (int i = 0; i < arraySize; i++) {
         newArray[i] = OGPixels[i];
     }
 }
 // Same thing but with Frames
-void copy(Frame* OGFrames[], Frame* newArray[], int arraySize) { //Copy function
+void Emotion::copyF(Frame* OGFrames[], Frame* newArray[], int arraySize) { //Copy function
     for (int i = 0; i < arraySize; i++) {
         newArray[i] = OGFrames[i];
     }
 }
 // Same thing but with bytes
-void copy(const byte OGints[], byte newArray[], byte arraySize) { //Copy function
+void Pixel::copyB(const byte OGbytes[], byte newArray[], int arraySize) { //Copy function
     for (int i = 0; i < arraySize; i++) {
-        newArray[i] = OGints[i];
+        newArray[i] = OGbytes[i];
     }
 }
+
 //Display a frame using the tools of the LEDMatrix class. 
 void Face::displayFrame(Frame* frame) {
     for (int i = 0; i < frame->numPixels; i++) {
@@ -192,13 +167,13 @@ Pixel** Face::changeColor(int size, Pixel* ogPixels[], byte r, byte g, byte b) {
     return newPixels;
 }
 
-
 // Add an emotion's frames to the current frame queue. 
-void  Face::addFrames(Emotion* emotion) {
+void Face::addFrames(Emotion* emotion) {
     for (int i = 0; i < emotion->numFrames; i++) {
         frameQueue.push(emotion->frameList[i]);
     }
 }
+
 void  Face::clearQueue() {
     // save the current frame
     Frame* currentFrame = frameQueue.peek();
@@ -207,6 +182,7 @@ void  Face::clearQueue() {
     }
     frameQueue.push(currentFrame);
 }
+
 Pixel** makePArray(int num, ...) {
     va_list args;
     static Pixel* newArray[MAX_PIXELS];
@@ -220,6 +196,7 @@ Pixel** makePArray(int num, ...) {
     va_end(args);                  // Cleans up the list
     return newArray;
 }
+
 // ake an array of pointers to frames
 Frame** makeFArray(int num, ...) {
     va_list args;

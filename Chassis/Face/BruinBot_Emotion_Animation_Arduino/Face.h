@@ -22,14 +22,15 @@ class Component {
 
 };
 
-class Pixel: public Component 
+class Pixel : public Component
 {
-public: 
-    Pixel(int xcoord, int ycoord,  byte pixelColor[3]);
+public:
+    Pixel(int xcoord, int ycoord, byte pixelColor[3]);
     Pixel(const Pixel& old);
     int x;
     int y;
     byte color[3];
+    void copyB(const byte OGints[], byte newArray[], int arraySize);  //Copy function
 };
 
 class Frame: public Component
@@ -39,6 +40,7 @@ public:
     ~Frame();
     int numPixels;
     Pixel* pixelList[MAX_PIXELS];
+    void copyP(Pixel* OGPixels[], Pixel* newArray[], int arraySize);  //Copy function
 };
 
 class Emotion: public Component
@@ -53,20 +55,29 @@ public:
     Emotion* nextEmotion;
     Emotion* interruptEmotion;
     bool completesSelf;
+    void copyF(Frame* OGFrames[], Frame* newArray[], int arraySize); //Copy function
 };
 
 class Face
 {
 public:
     Face(int pin);
-    void displayFrame(Frame* currentFrame);
     QueueList<Frame*> frameQueue;
     Emotion* currentEmotion;
     Frame* currentFrame;
+    LEDMatrix matrix; 
+
+    // Helper Functions
+
+    Frame** concatenate(int size1, int size2, Frame* list1[], Frame* list2[]);
+    Pixel** concatenate(int size1, int size2, Pixel* list1[], Pixel* list2[]);
+    Pixel** changeColor(int size, Pixel* ogPixels[], byte r, byte g, byte b);
+    //void copyP(Pixel* OGPixels[], Pixel* newArray[], int arraySize);  //Copy function
+    //void copyF(Frame* OGFrames[], Frame* newArray[], int arraySize); //Copy function
+    //void copyB(byte OGints[], byte newArray[], int arraySize);  //Copy function
+    void displayFrame(Frame* frame);
     void addFrames(Emotion* emotion);
     void clearQueue();
-
-    LEDMatrix matrix; 
 
     // "frame snippets" that contain a handful of pixel objects representing only the mouth, eyes, etc.
 
@@ -188,13 +199,7 @@ private:
 
     
 
-    // Helper Functions
-   
-    Frame** concatenate(int size1, int size2, Frame* list1[], Frame* list2[]);
-    Pixel** concatenate(int size1, int size2, Pixel* list1[], Pixel* list2[]);
-    Pixel** changeColor(int size, Pixel* ogPixels[], byte r, byte g, byte b);
-
-   
+    
 };
 
 #endif
