@@ -22,8 +22,8 @@ void setup()
 
 
 int cutoff=7000;
-int average_over=160;
-int s[160]={10};
+int average_over=40;
+int s[40]={10};
 
 float average;
 int n=0;
@@ -31,6 +31,7 @@ int max_strength=-32768;
 int min_strength=32767;
 
 int thresh=4000;
+int thresh2=9000;
 bool moving=false;
 
 void loop()
@@ -58,12 +59,6 @@ void loop()
            //shift all values backward
            for (int i=0; i<average_over-1; i++){s[i]=s[i+1]; average+=s[i]/average_over;}
            s[average_over-1]=strength;
-           if (strength>max_strength){
-            max_strength=strength;
-           }
-           if (strength<min_strength){
-            min_strength=strength;
-           }
            average+=strength/average_over; 
            if (n==average_over){   
 //           Serial.print("max_strength = "); Serial.print(max_strength);
@@ -72,7 +67,7 @@ void loop()
            Serial.print(average);// output signal strength value
            Serial.print('\n');
            n=0;
-           moving=average>thresh;
+           moving=(average<thresh)||(average>thresh2);
            if (moving){
             Serial.print("moving\n");
            }
