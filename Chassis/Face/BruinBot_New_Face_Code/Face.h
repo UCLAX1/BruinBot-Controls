@@ -25,7 +25,7 @@ public:
     char receivedChars[numChars];
     char tempChars[numChars];        // temporary array for use when parsing
     char receivedMsg[numChars] = { 0 };
-    boolean newData = false;
+    boolean newData;
     void parseData();
     void recvWithStartEndMarkers();
     bool newTarget();

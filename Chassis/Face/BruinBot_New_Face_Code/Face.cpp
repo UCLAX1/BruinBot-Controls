@@ -20,7 +20,7 @@
 Face::Face(int pin)
     :m_Matrix(pin)
 {
-
+    newData = false; 
     target = "loading";
     currentEmotion = target;
 }
@@ -125,7 +125,7 @@ void Face::happy_emphasis() {
             return;
         }
     }
-    target = "happy_standby";
+    target = "happy";
     happy_emphasis_reverse();
 }
 void Face:: happy_emphasis_reverse(){
@@ -152,7 +152,7 @@ void Face::surprise() {
         }
     }
     // Unlike angry, the surprised emotion does not loop itself, it just holds and then returns to default happy expression. 
-    target = "happy_standby";
+    target = "happy";
     surprise_transition_reverse();
 }
 
@@ -253,6 +253,7 @@ void Face::loading() {
     loading_frame7();
     loading_frame8();
     // loops until receiving another command, then plays startup animation
+    
     if (newTarget()) {
         startup();
         return;
@@ -279,7 +280,7 @@ void Face::startup() {
     startup_frame12();
     set_eyeColor(0, 0, 100);
     happy_frame1(0);
-    blink(); 
+    //blink(); 
     // check to see if a new target has come in 
     newTarget();
 }
@@ -355,6 +356,7 @@ void Face::set_eyebrowColor(byte RED, byte GREEN, byte BLUE) {
 void Face::blink() {
     blink_frame1();
     basic_smile(0);
+    m_Matrix.displayFrame(100);
     blink_frame1();
 }
 
@@ -439,11 +441,10 @@ void Face::happy_em_frame2() {
     m_Matrix.displayFrame(HOLD);
 }
 void Face::happy_em_frame3() {
-    happy_em_frame2();
     // add cheeks 
     byte cheekColor[3] = { 5,0,1 };
     m_Matrix.mapLEDXY(1, 11, cheekColor); m_Matrix.mapLEDXY(2, 11, cheekColor); m_Matrix.mapLEDXY(13, 11, cheekColor); m_Matrix.mapLEDXY(14, 11, cheekColor);
-    m_Matrix.displayFrame(HOLD);
+    happy_em_frame2();
 }
 
 void Face::angry_frame1() {
@@ -461,11 +462,10 @@ void Face::angry_frame2() {
     m_Matrix.displayFrame(HOLD);
 }
 void Face::angry_frame3() {
-    //eyes and mouth same as previous frame 
-    angry_frame2();
     //start to add eyebrows 
     m_Matrix.mapLEDXY(4, 7, eyebrowColor); m_Matrix.mapLEDXY(11, 7, eyebrowColor);
-    m_Matrix.displayFrame(HOLD);
+    //eyes and mouth same as previous frame 
+    angry_frame2();
 }
 void Face::angry_frame4() {
     // mouth same as previous frame 
