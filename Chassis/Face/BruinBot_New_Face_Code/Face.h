@@ -1,10 +1,10 @@
 /*
   Face.h: header file to operate a Face object with different emotion codes.
   Public functions contain emotion sequences such as happy_standby, angry_transition, angry_standby, bounce, etc.
-  Private functions contain individual frames with their names/numbers to make it easier to concatenate animation.
+  Private functions contain individual frames and snippets of animation with their names/numbers to make it easier to concatenate animation.
   The functions which directly access the LED matrix are contained in the LEDMatrix class.
 
-  Rebecca Celsi 2020
+  Rebecca Celsi 2022
   Created to run a 16x16 NeoPixel WS2812B matrix.
 */
 
@@ -132,6 +132,7 @@ private:
     byte mouthColor[3] = { 10,10,10 };
     byte eyebrowColor[3] = {10,0,0};
 
+    // LEDMatrix object which handles the actual display of pixels
     LEDMatrix m_Matrix;
 };
 

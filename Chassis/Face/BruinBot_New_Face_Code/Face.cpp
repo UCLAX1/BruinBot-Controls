@@ -8,7 +8,9 @@
   Private functions contain individual frames with their names/numbers to make it easier to concatenate animation.
   The functions which directly access the LED matrix are contained in the LEDMatrix class.
 
-  Rebecca Celsi 2020
+  Each emotion function calls functions representing individual frames, animation snippets, or color changes. When the animation reaches a point where it can transition, it will call newTarget() to see if a new emotion target was received. Every emotion is thus responsible for transiitoning itself back to the default happy_standby face, at which point the newly retrieved target variable will determine the next emotion transition. 
+
+  Rebecca Celsi 2022
   Created to run a 16x16 NeoPixel WS2812B matrix. 
 */
 
@@ -21,11 +23,12 @@ Face::Face(int pin)
     :m_Matrix(pin)
 {
     newData = false; 
+    //emotion to display upon bootup 
     target = "loading";
     currentEmotion = target;
 }
 
-// Code that handles serial communication. 
+
 bool Face::newTarget() {
     recvWithStartEndMarkers();
     if (newData == true) {
@@ -36,12 +39,14 @@ bool Face::newTarget() {
         // update global variable 'target'
         target = String(receivedMsg);
         newData = false;
+        // true if a new word of data retrieved 
         return true;
     }
     // If no command was received, return false
     return false;
 }
 
+// Code that handles serial communication. 
 void Face::recvWithStartEndMarkers() {
     static boolean recvInProgress = false;
     static byte ndx = 0;
@@ -73,13 +78,14 @@ void Face::recvWithStartEndMarkers() {
     }
 }
 
-//need to edit this 
-void Face::parseData() {      // split the data into its parts
-
+// split the data into its parts
+//Edit this if messages ever need to contain int arguments (for example, if a duration has to be sent with an emotion)
+void Face::parseData() {      
+    
     char* strtokIndx; // this is used by strtok() as an index
 
     strtokIndx = strtok(tempChars, ",");      // get the first part - the string
-    strcpy(receivedMsg, strtokIndx); // copy it to messageFromPC
+    strcpy(receivedMsg, strtokIndx);          // copy it to messageFromPC
 
     // this part handles int data if I need it 
     //strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
@@ -94,7 +100,7 @@ void Face::happy_standby() {
     for (int i = 0; i < HOLD_FRAMES; i++) {
         happy_frame1(0); //display frame, including delay 
         if (newTarget()) {
-            return;
+            return; // immediately transition out of happy when a new target is detected
         }
     }
     blink();
@@ -117,6 +123,7 @@ void Face::happy_emphasis_transition() {
     happy_em_frame2();
     happy_em_frame3();
 }
+
 void Face::happy_emphasis() {
     for (int i = 0; i < HOLD_FRAMES; i++) {
         happy_em_frame3();

@@ -5,7 +5,6 @@
 #define numberOfLEDs 256// total number of RGB LEDs
 #define LED_PIN 13
 #define BAUD_RATE 115200
-// default hold of 100 ms per frame and 20 frames per long hold
 
 
 // Create a face object on pin 8. 
@@ -21,6 +20,7 @@ void setup() {
     Serial.write("connected port \n");
     // turn off LED when connected (?)
     digitalWrite(LED_PIN, HIGH);
+    // uncomment this when the raspberry pi is connected
     //while (!establish_connection()) {}
     digitalWrite(LED_PIN, LOW);
     Serial.write("established connection \n");
@@ -29,41 +29,8 @@ void setup() {
 
 void loop() {
     // when a target is set, and it is not the current emotion, it will trigger the face to transition into that emotion. Each emotion will loop itself (leave target unchanged) if it does not detect any interrupts, but if it does detect an interrupt it is responsible for getting itself back to happy_standby and updating the target variable. 
-    // NOTE: The face code is not capable of receiving many target codes quickly, as it only checks and parses them at specific times!
- /*
- //Loading screen 
-  myFace.loading(); 
-  myFace.loading(); 
-  myFace.loading();
- //Startup and go to happy standby 
-  myFace.startup(); 
-  myFace.happy_standby(); 
- //Surprise
-  myFace.surprise_transition(); 
-  myFace.surprise();
- //Happy emphasis
-  myFace.happy_standby();
-  myFace.happy_emphasis_transition(); 
-  myFace.happy_emphasis(); // have to put a duration for this one
-  myFace.happy_standby(); 
- //Angry
-  myFace.angry_transition(); 
-  myFace.angry_standby();
-  myFace.angry_transition_reverse();
-  myFace.happy_standby(); 
- // Sad 
-  myFace.sad_transition(); 
-  myFace.sad_standby();  
-  myFace.sad_transition_reverse(); 
-  myFace.happy_standby(); 
-// neutral and tired/bored
-  myFace.neutral_standby();  
-  myFace.happy_standby(); 
- //bounce 
-  myFace.bounce();
-  myFace.bounce();
-   */
-  /*
+    // NOTE: The face code is capable of receiving several emotions in sequence, but it will transition into them and out of them again (so avoid sending 3 calls to "angry" in sequence when the face should be displaying angry_standby)
+    /*
     Possible target codes :
         "loading"
         "happy"
@@ -73,6 +40,7 @@ void loop() {
         "sad"
         "neutral"
         "bounce"
+        - Receiving any other command will set the emotion back to happy_standby
     */
     
     if (myFace.target == "loading") {
@@ -133,8 +101,9 @@ void loop() {
         myFace.target = "happy";
     }
 }
-// Since the emotion functions inside of the Face class need to interface directly with the serial monitor, a lot of the standard Serial Read functions like recvWithStartEndMarkers() has been moved into the Face.cpp file. Hopefully this works. 
+// Since the emotion functions inside of the Face class need to interface directly with the serial monitor, a lot of the standard Serial Read functions like recvWithStartEndMarkers() has been moved into the Face.cpp file. 
 
+//This function estbalishes a connection with the raspberry pi (currently it is never called because the raspberry pi is not being used)
 boolean establish_connection() {
     while (!(Serial.available() > 0)) {} // hangs until a msg is received
     char rcv = Serial.read();
