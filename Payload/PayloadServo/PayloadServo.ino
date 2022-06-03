@@ -96,24 +96,32 @@ void loop() {
     pwm.writeMicroseconds(1, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(1, 0);
+    belt(4000);
+    arm();
   }
   else if(command == "snack2"){
     Serial.println("Dispensing snack 2");
     pwm.writeMicroseconds(5, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(5, 0);
+    belt(3000);
+    arm();
   }
   else if(command == "snack3"){
     Serial.println("Dispensing snack 3");
     pwm.writeMicroseconds(9, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(9, 0);
+    belt(2000);
+    arm();
   }
    else if(command == "snack4"){
     Serial.println("Dispensing snack 4");
     pwm.writeMicroseconds(13, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(13, 0);
+    belt(2100);
+    arm();
   }
   else if(command == "arm"){
     Serial.println("moving arm");
@@ -138,6 +146,28 @@ void loop() {
 }
 
 
+void arm(){
+  Serial.println("moving arm");
+  for(int i = 1800; i >= 1350; i -= 5){
+    pwm.writeMicroseconds(0, i);
+    delay(15);
+  }
+  delay(SNACKTIME);
+  for(int i = 1350; i <= 1800; i += 5){
+    pwm.writeMicroseconds(0, i);
+    delay(25);
+  }
+  delay(100);
+  pwm.writeMicroseconds(0, 0);
+}
+void belt(int beltTime){
+  Serial.println("moving belt");
+  digitalWrite(motorpin1, LOW);
+  digitalWrite(motorpin2, HIGH);
+  delay(beltTime);
+  digitalWrite(motorpin1, LOW);
+  digitalWrite(motorpin2, LOW);
+}
 
 // command reads data sent to the serial port from the raspberry pi
 void readSerialPort() {
