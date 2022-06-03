@@ -26,18 +26,20 @@ public:
     char tempChars[numChars];        // temporary array for use when parsing
     char receivedMsg[numChars] = { 0 };
     boolean newData;
+    int global_duration;
     void parseData();
     void recvWithStartEndMarkers();
     bool newTarget();
+    void clear(); 
 
     // Emotions 
     void happy_standby();
     void neutral_standby();
     void happy_emphasis_transition();
-    void happy_emphasis(); 
+    void happy_emphasis(int duration = 20); 
     void happy_emphasis_reverse();
     void surprise_transition();
-    void surprise();
+    void surprise(int duration = 20);
     void surprise_transition_reverse();
     void angry_transition(); 
     void angry_transition_reverse(); 

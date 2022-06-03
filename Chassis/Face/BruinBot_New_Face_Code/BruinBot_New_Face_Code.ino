@@ -14,16 +14,16 @@ void setup() {
     //Set up hardware
     pinMode(WS2812_pin, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
-    
+
+    myFace.clear();
     Serial.begin(BAUD_RATE);
     while (!Serial) {}; // hangs until serial port is properly opened
-    Serial.write("connected port \n");
     // turn off LED when connected (?)
     digitalWrite(LED_PIN, HIGH);
-    // uncomment this when the raspberry pi is connected
-    //while (!establish_connection()) {}
+    // try to connect to the pi
+    while(!establish_connection()) {}
     digitalWrite(LED_PIN, LOW);
-    Serial.write("established connection \n");
+    //Serial.write("established connection \n");
     
 }
 
@@ -44,18 +44,18 @@ void loop() {
     */
     
     if (myFace.target == "loading") {
-        Serial.println("loading");
+        //Serial.println("loading");
         myFace.currentEmotion = "loading";
         myFace.loading();
        
     }
     else if (myFace.target == "happy") {
-        Serial.println("happy");
+        //Serial.println("happy");
         myFace.currentEmotion = "happy";
         myFace.happy_standby();
     }
     else if (myFace.target == "angry") {
-        Serial.println("angry");
+        //Serial.println("angry");
         if (myFace.currentEmotion != myFace.target) {
             myFace.angry_transition();
         }
@@ -63,23 +63,23 @@ void loop() {
         myFace.angry_standby(); 
     }
     else if (myFace.target == "surprise"){
-        Serial.println("surprise");
+        //Serial.println("surprise");
         if (myFace.currentEmotion != myFace.target) {
             myFace.surprise_transition();
         }
         myFace.currentEmotion = "surprise";
-        myFace.surprise();
+        myFace.surprise(myFace.global_duration);
     }
     else if (myFace.target == "happy_emphasis") {
-        Serial.println("happy_emphasis");
+        //Serial.println("happy_emphasis");
         if (myFace.currentEmotion != myFace.target) {
             myFace.happy_emphasis_transition();
         }
         myFace.currentEmotion = "happy_emphasis";
-        myFace.happy_emphasis();
+        myFace.happy_emphasis(myFace.global_duration);
     }
     else if (myFace.target == "sad") {
-        Serial.println("sad");
+        //Serial.println("sad");
         if (myFace.currentEmotion != myFace.target) {
             myFace.sad_transition();
         }
@@ -87,12 +87,12 @@ void loop() {
         myFace.sad_standby();
     }
     else if (myFace.target == "neutral") {
-        Serial.println("neutral");
+        //Serial.println("neutral");
         myFace.currentEmotion = "neutral";
         myFace.neutral_standby();
     }
     else if (myFace.target == "bounce") {
-        Serial.println("bounce");
+        //Serial.println("bounce");
         myFace.currentEmotion = "bounce";
         myFace.bounce();
     }
@@ -108,7 +108,7 @@ boolean establish_connection() {
     while (!(Serial.available() > 0)) {} // hangs until a msg is received
     char rcv = Serial.read();
     if (rcv == 'i') {
-        Serial.println("motor");
+        Serial.println("face");
     }
 
     int start = millis();

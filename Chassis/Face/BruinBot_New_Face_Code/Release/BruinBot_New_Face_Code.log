@@ -1,0 +1,48 @@
+﻿  Face.cpp
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(16,1): warning C4005: '__AVR_atmega328p__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : message : see previous definition of '__AVR_atmega328p__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(17,1): warning C4005: '__AVR_ATmega328P__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : message : see previous definition of '__AVR_ATmega328P__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(18,1): warning C4005: '__AVR_ATmega328p__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : message : see previous definition of '__AVR_ATmega328p__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(21,1): warning C4005: 'ARDUINO_AVR_UNO': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : message : see previous definition of 'ARDUINO_AVR_UNO'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(22,1): warning C4005: 'ARDUINO_ARCH_AVR': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\Face.cpp : message : see previous definition of 'ARDUINO_ARCH_AVR'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(23,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(32,1): warning C4117: macro name '__cplusplus' is reserved, '#undef' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(33,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include\stddef.h(216,23): error C2371: 'size_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\predefined C++ types (compiler internal)(16): message : see declaration of 'size_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(73,3): error C2371: 'div_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(65): message : see declaration of 'div_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(79,3): error C2371: 'ldiv_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(66): message : see declaration of 'ldiv_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(162,79): warning C4391: 'div_t div(int,int)': incorrect return type for intrinsic function, expected 'struct'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(168,83): warning C4391: 'ldiv_t ldiv(long,long)': incorrect return type for intrinsic function, expected 'struct'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include\stdint.h(9,1): fatal error C1021: invalid preprocessor command 'include_next'
+  LEDMatrix.cpp
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(16,1): warning C4005: '__AVR_atmega328p__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : message : see previous definition of '__AVR_atmega328p__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(17,1): warning C4005: '__AVR_ATmega328P__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : message : see previous definition of '__AVR_ATmega328P__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(18,1): warning C4005: '__AVR_ATmega328p__': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : message : see previous definition of '__AVR_ATmega328p__'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(21,1): warning C4005: 'ARDUINO_AVR_UNO': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : message : see previous definition of 'ARDUINO_AVR_UNO'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(22,1): warning C4005: 'ARDUINO_ARCH_AVR': macro redefinition
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\LEDMatrix.cpp : message : see previous definition of 'ARDUINO_ARCH_AVR'
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(23,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(32,1): warning C4117: macro name '__cplusplus' is reserved, '#undef' ignored
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(33,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+C:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include\stddef.h(216,23): error C2371: 'size_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\predefined C++ types (compiler internal)(16): message : see declaration of 'size_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(73,3): error C2371: 'div_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(65): message : see declaration of 'div_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(79,3): error C2371: 'ldiv_t': redefinition; different basic types
+C:\Users\becca\Documents\GitHub\BruinBot-Controls\Chassis\Face\BruinBot_New_Face_Code\__vm\.BruinBot_New_Face_Code.vsarduino.h(66): message : see declaration of 'ldiv_t'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(162,79): warning C4391: 'div_t div(int,int)': incorrect return type for intrinsic function, expected 'struct'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\stdlib.h(168,83): warning C4391: 'ldiv_t ldiv(long,long)': incorrect return type for intrinsic function, expected 'struct'
+C:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\7.3.0\include\stdint.h(9,1): fatal error C1021: invalid preprocessor command 'include_next'

@@ -78,6 +78,10 @@ void Face::recvWithStartEndMarkers() {
     }
 }
 
+void Face:: clear(){
+  m_Matrix.clearLEDs();
+}
+
 // split the data into its parts
 //Edit this if messages ever need to contain int arguments (for example, if a duration has to be sent with an emotion)
 void Face::parseData() {      
@@ -88,8 +92,8 @@ void Face::parseData() {
     strcpy(receivedMsg, strtokIndx);          // copy it to messageFromPC
 
     // this part handles int data if I need it 
-    //strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
-    //motor_speed = atoi(strtokIndx);     // convert this part to an integer
+    strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
+    global_duration = atoi(strtokIndx);     // convert this part to an integer
 }
 
 void Face::happy_standby() {
@@ -124,8 +128,18 @@ void Face::happy_emphasis_transition() {
     happy_em_frame3();
 }
 
-void Face::happy_emphasis() {
-    for (int i = 0; i < HOLD_FRAMES; i++) {
+void Face::happy_emphasis(int duration) {
+  // if duration is set to -1, the 'happy emphasis' frame will hold indefinitely until receiving a new command. 
+  if (duration ==-1){
+    while (!newTarget()){
+      happy_em_frame3();
+    }
+    happy_emphasis_reverse();
+    return;
+  }
+  // if duration is not specified or is set to a value, frame will hold for that # of frames (default HOLD_FRAMES)
+  else{
+    for (int i = 0; i < duration; i++) {
         happy_em_frame3();
         if (newTarget()) {
             happy_emphasis_reverse();
@@ -134,6 +148,7 @@ void Face::happy_emphasis() {
     }
     target = "happy";
     happy_emphasis_reverse();
+  }
 }
 void Face:: happy_emphasis_reverse(){
     happy_em_frame2();
@@ -150,8 +165,18 @@ void Face::surprise_transition() {
     surprise_frame4();
 }
 
-void Face::surprise() {
-    for (int i = 0; i < HOLD_FRAMES; i++) {
+void Face::surprise(int duration) {
+  // if duration is set to -1, the 'surprise' frame will hold indefinitely until receiving a new command. 
+  if (duration ==-1){
+    while (!newTarget()){
+      surprise_frame5();
+    }
+    surprise_transition_reverse();
+    return;
+  }
+  // if duration is not specified or is set to a value, frame will hold for that # of frames (default HOLD_FRAMES)
+  else{
+    for (int i = 0; i < duration; i++) {
         surprise_frame5();
         if (newTarget()) {
             surprise_transition_reverse();
@@ -161,6 +186,7 @@ void Face::surprise() {
     // Unlike angry, the surprised emotion does not loop itself, it just holds and then returns to default happy expression. 
     target = "happy";
     surprise_transition_reverse();
+  }
 }
 
 void Face::surprise_transition_reverse() {
