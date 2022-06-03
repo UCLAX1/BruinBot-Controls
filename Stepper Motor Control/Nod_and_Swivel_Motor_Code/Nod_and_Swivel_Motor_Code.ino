@@ -138,7 +138,7 @@ boolean establish_connection() {
     while (!(Serial.available() > 0)) {} // hangs until a msg is received
     char rcv = Serial.read();
     if (rcv == 'i') {
-        Serial.println("motor");
+        Serial.println("head");
     }
 
     int start = millis();
