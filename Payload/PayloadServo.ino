@@ -36,13 +36,15 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
+#define FORWARD 2000 // "forward" direction for payload servo in us
+#define SNACKTIME 3000 // ms of delay to dispense a snack
 
 // our servo # counter
 uint8_t servonum = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("8 channel Servo test!");
+  Serial.println("payload");
 
   pwm.begin();
   /*
@@ -69,10 +71,67 @@ void setup() {
 
 
 void loop() {
-//  http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html#a724a7fc39c6fba34478ecc0eea038bd3
-// pwm.setPWM(channel, start position, end position)
-// out of 4096 increment pulse
-// duty cycle = start/end %
-  pwm.setPWM(1, 0, 200);
-  pwm.setPWM(2, 0, 400);
+  readSerialPort();
+  // http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html#aa91cf057ec01505292401e4fdceb57ac
+  // pwm.writeMicroseconds (channel, microseconds)
+  // depends on servo, generally 500~2500 us, with neutral ~1500 us
+  // 0 us =  off, 1500 = neutral position but powered.
+  if(command == "snack1"){
+    pwm.writeMicroseconds(0, FORWARD);
+    delay(SNACKTIME);
+    pwm.writeMicroseconds(0, 0);
+  }
+  else if(command == "snack2"){
+    pwm.writeMicroseconds(1, FORWARD);
+    delay(SNACKTIME);
+    pwm.writeMicroseconds(1, 0);
+  }
+  else if(command == "snack3"){
+    pwm.writeMicroseconds(2, FORWARD);
+    delay(SNACKTIME);
+    pwm.writeMicroseconds(2, 0);
+  }
+   else if(command == "snack4"){
+    pwm.writeMicroseconds(3, FORWARD);
+    delay(SNACKTIME);
+    pwm.writeMicroseconds(3, 0);
+  }
+}
+
+
+
+// command reads data sent to the serial port from the raspberry pi
+void readSerialPort() {
+  command = "";
+  if (Serial.available()) {
+    delay(10);
+    while (Serial.available() > 0) {
+      command += (char)Serial.read();
+    }
+    Serial.flush();
+  }
+}
+
+//This function estbalishes a connection with the raspberry pi (currently it is never called because the raspberry pi is not being used)
+boolean establish_connection() {
+    while (!(Serial.available() > 0)) {} // hangs until a msg is received
+    char rcv = Serial.read();
+    if (rcv == 'i') {
+        Serial.println("payload");
+    }
+
+    int start = millis();
+    while (!(Serial.available() > 0)) {
+        if (millis() - start > 1000) {
+            return false;
+        }
+    }
+    rcv = Serial.read();
+    if (rcv == 'd') {
+        // Pi has acknowledged this arduino
+        return true;
+    }
+    else {
+        return false;
+    }
 }
