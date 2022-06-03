@@ -96,7 +96,7 @@ void loop() {
     pwm.writeMicroseconds(1, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(1, 0);
-    belt(4000);
+    belt(4500);
     arm();
   }
   else if(command == "snack2"){
@@ -104,7 +104,7 @@ void loop() {
     pwm.writeMicroseconds(5, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(5, 0);
-    belt(3500);
+    belt(3750);
     arm();
   }
   else if(command == "snack3"){
