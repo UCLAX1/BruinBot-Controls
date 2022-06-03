@@ -36,14 +36,18 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-#define FORWARD 2000 // "forward" direction for payload servo in us
-#define SNACKTIME 3000 // ms of delay to dispense a snack
+#define FORWARD 1000 // "forward" direction for payload servo in us
+#define SNACKTIME 2600 // ms of delay to dispense a snack
+#define BELTTIME 4000 // ms of delay to run the belt
 
 // our servo # counter
 uint8_t servonum = 0;
+String command = "";
+int motorpin1 = 8;
+int motorpin2 = 9;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("payload");
 
   pwm.begin();
@@ -67,35 +71,70 @@ void setup() {
   pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
 
   delay(10);
+  pwm.writeMicroseconds(1, 0);
+  pwm.writeMicroseconds(5, 0);
+  pwm.writeMicroseconds(9, 0);
+  pwm.writeMicroseconds(13, 0);
+  pwm.writeMicroseconds(0, 1800);
+  pinMode(motorpin1, OUTPUT);
+  pinMode(motorpin2, OUTPUT);
 }
 
 
 void loop() {
-  readSerialPort();
+//  readSerialPort();/
+  while (Serial.available()) {  // check for incoming serial data
+    delay(3);
+    command = Serial.readString();
+  }
   // http://adafruit.github.io/Adafruit-PWM-Servo-Driver-Library/html/class_adafruit___p_w_m_servo_driver.html#aa91cf057ec01505292401e4fdceb57ac
   // pwm.writeMicroseconds (channel, microseconds)
   // depends on servo, generally 500~2500 us, with neutral ~1500 us
   // 0 us =  off, 1500 = neutral position but powered.
   if(command == "snack1"){
-    pwm.writeMicroseconds(0, FORWARD);
-    delay(SNACKTIME);
-    pwm.writeMicroseconds(0, 0);
-  }
-  else if(command == "snack2"){
+    Serial.println("Dispensing snack 1");
     pwm.writeMicroseconds(1, FORWARD);
     delay(SNACKTIME);
     pwm.writeMicroseconds(1, 0);
   }
-  else if(command == "snack3"){
-    pwm.writeMicroseconds(2, FORWARD);
+  else if(command == "snack2"){
+    Serial.println("Dispensing snack 2");
+    pwm.writeMicroseconds(5, FORWARD);
     delay(SNACKTIME);
-    pwm.writeMicroseconds(2, 0);
+    pwm.writeMicroseconds(5, 0);
+  }
+  else if(command == "snack3"){
+    Serial.println("Dispensing snack 3");
+    pwm.writeMicroseconds(9, FORWARD);
+    delay(SNACKTIME);
+    pwm.writeMicroseconds(9, 0);
   }
    else if(command == "snack4"){
-    pwm.writeMicroseconds(3, FORWARD);
+    Serial.println("Dispensing snack 4");
+    pwm.writeMicroseconds(13, FORWARD);
     delay(SNACKTIME);
-    pwm.writeMicroseconds(3, 0);
+    pwm.writeMicroseconds(13, 0);
   }
+  else if(command == "arm"){
+    Serial.println("moving arm");
+    pwm.writeMicroseconds(0, 1350);
+    delay(SNACKTIME);
+    for(int i = 1350; i <= 1800; i += 5){
+      pwm.writeMicroseconds(0, i);
+      delay(25);
+    }
+    delay(100);
+    pwm.writeMicroseconds(0, 0);
+  }
+  else if(command == "belt"){
+    Serial.println("moving belt");
+    digitalWrite(motorpin1, LOW);
+    digitalWrite(motorpin2, HIGH);
+    delay(BELTTIME);
+    digitalWrite(motorpin1, LOW);
+    digitalWrite(motorpin2, LOW);
+  }
+  command = "";
 }
 
 
