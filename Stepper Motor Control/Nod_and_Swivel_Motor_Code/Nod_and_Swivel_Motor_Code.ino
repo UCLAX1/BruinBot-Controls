@@ -1,5 +1,4 @@
 #include "SparkFun_ProDriver_TC78H670FTG_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_ProDriver
-#include "ezButton.h"
 PRODRIVER nodMotor; // Controls up and down movement
 PRODRIVER swivelMotor;  // Controls swiveling movement
 String command = "nothing";
@@ -41,26 +40,27 @@ void setup() {
   swivelMotor.begin();
 
   pinMode(turnSwitch, INPUT_PULLUP);
+  pinMode(nodSwitch, INPUT_PULLUP);
 
   // Home Turn Motor
   Serial.println("Homing Turn Motor");
   while(digitalRead(turnSwitch)){
-    swivelMotor.step(1,0);
+    swivelMotor.step(1,1);
   }
   while(!digitalRead(turnSwitch)){
-    swivelMotor.step(1,1);
+    swivelMotor.step(1,0);
   }
   
   int startTime = millis();
   // Home Nod Motor
   Serial.println("Homing Nod Motor");
   while(digitalRead(nodSwitch)){
-     if(millis() - startTime < 10000){
-      nodMotor.step(1,1);
-    }
-    else{
+//     if(millis() - startTime < 10000){/
+//      nodMotor.step(1,1);/
+//    }/
+//    else{/
       nodMotor.step(1,0);
-    }
+//    }/
   }
   while(!digitalRead(nodSwitch)){
     nodMotor.step(1,1);
@@ -72,8 +72,11 @@ void setup() {
 }
 
 void loop() {
-   readSerialPort();
- 
+//   readSerialPort();/
+    while (Serial.available()) {  // check for incoming serial data
+      delay(3);
+      command = Serial.readString();
+    } 
     //command.remove(command.length()-1);
     if (command.startsWith("Turn") > 0){
       swivelCommand = command;
@@ -120,6 +123,10 @@ void loop() {
     Serial.println("Stopped Nodding");
     stopCommand = "nothing";
   }
+  command = "";
+  swivelCommand = "";
+  nodCommand = "";
+  stopCommand = "";
 }
 
 void readSerialPort() {
